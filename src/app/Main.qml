@@ -5,14 +5,14 @@ import QtQuick.Layouts
 import App.Controls
 import App.Canvas // demo
 import App.Sketchbook // demo
-import App.Notify
+import App.Notify as Notify
 
 ApplicationWindow {
     id: window
 
     required property SketchbookViewModel sketchbook // demo
     required property CanvasStore canvas // demo
-    required property NotificationCenter notifications
+    required property Notify.Manager notifications
 
     width: 960
     height: 680
@@ -134,9 +134,9 @@ ApplicationWindow {
         id: about
     }
 
-    NotificationHost {
+    Notify.Host {
         anchors.fill: parent
-        center: window.notifications
+        manager: window.notifications
     }
 
     // demo:begin

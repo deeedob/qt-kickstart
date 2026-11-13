@@ -1,7 +1,7 @@
 #include <AppController.hpp>
 #include <BuildInfo.hpp>
 #include <CanvasStore.hpp>
-#include <NotificationCenter.hpp>
+#include <Manager.hpp>
 #include <SketchStorage.hpp>
 #include <SketchbookViewModel.hpp>
 
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
     controller.setLanguage("en"_L1);
     app::sketchbook::SketchStorage storage(temporary.filePath("sketches"_L1));
     app::canvas::CanvasStore canvas;
-    app::notify::NotificationCenter notifications;
+    app::notify::Manager notifications;
     app::sketchbook::SketchbookViewModel sketchbook(storage, canvas, notifications);
     sketchbook.create();
     sketchbook.renameOpen(u"Ideas"_s);
@@ -149,14 +149,14 @@ int main(int argc, char **argv)
     if (!save(window, output, u"sketchbook-de.png"_s))
         return 1;
     controller.setLanguage("en"_L1);
-    notifications.postMessage(u"Last stroke removed"_s, &canvas);
+    notifications.postMessage(u"Last stroke removed"_s);
     auto *recovery = notifications.post({
         .title = u"Could not save sketch"_s,
         .message = u"The destination is unavailable. Your changes are kept in memory."_s,
-        .severity = app::notify::Message::Severity::Error,
-        .presentation = app::notify::Message::Presentation::Persistent,
+        .severity = app::notify::Severity::Error,
+        .presentation = app::notify::Presentation::Persistent,
         .actions = {
-            { .text = u"Retry"_s, .triggered = [&storage] { storage.retryFailedSaves(); } },
+            { .id = u"retry"_s, .text = u"Retry"_s },
         },
     }, &canvas);
     if (!recovery || !save(window, output, u"notify-light.png"_s))
@@ -171,8 +171,8 @@ int main(int argc, char **argv)
         .title = u"Unsaved changes"_s,
         .message = u"Some changes could not be saved. Retry saving, keep editing, or discard "
                    u"the unsaved changes before closing the sketchbook."_s,
-        .severity = app::notify::Message::Severity::Warning,
-        .presentation = app::notify::Message::Presentation::Decision,
+        .severity = app::notify::Severity::Warning,
+        .presentation = app::notify::Presentation::Decision,
         .actions = {
             { .text = u"Retry saving"_s },
             { .text = u"Keep editing"_s },

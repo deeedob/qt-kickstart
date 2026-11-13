@@ -3,7 +3,7 @@
 #include "SketchbookViewModel.hpp"
 
 #include <CanvasStore.hpp>
-#include <NotificationCenter.hpp>
+#include <Manager.hpp>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -18,7 +18,7 @@
 #include <QtTest/QSignalSpy>
 #include <QtTest/QTest>
 
-#include <Message.hpp>
+#include <Notification.hpp>
 
 using namespace Qt::StringLiterals;
 using app::canvas::CanvasStore;
@@ -43,7 +43,7 @@ struct MainFixture
     QTemporaryDir directory;
     SketchStorage storage;
     CanvasStore canvas;
-    app::notify::NotificationCenter notifications;
+    app::notify::Manager notifications;
     SketchbookViewModel sketchbook{ storage, canvas, notifications };
     QSettings settings{ directory.filePath("settings.ini"_L1), QSettings::IniFormat };
     app::AppController controller{
@@ -117,8 +117,8 @@ private Q_SLOTS:
         fixture.sketchbook.create();
         QTRY_COMPARE(saves.count(), 1);
         QTRY_COMPARE(fixture.notifications.count(), 1);
-        auto *recovery = qvariant_cast<app::notify::Message *>(fixture.notifications.data(
-            fixture.notifications.index(0), app::notify::NotificationCenter::NotificationRole));
+        auto *recovery = qvariant_cast<app::notify::Notification *>(fixture.notifications.data(
+            fixture.notifications.index(0), app::notify::Manager::NotificationRole));
         QVERIFY(recovery);
 
         fixture.window->close();
@@ -126,8 +126,8 @@ private Q_SLOTS:
         recovery->dismiss();
         QTRY_VERIFY(!fixture.notifications.currentDecision());
         QTRY_COMPARE(fixture.notifications.count(), 1);
-        recovery = qvariant_cast<app::notify::Message *>(fixture.notifications.data(
-            fixture.notifications.index(0), app::notify::NotificationCenter::NotificationRole));
+        recovery = qvariant_cast<app::notify::Notification *>(fixture.notifications.data(
+            fixture.notifications.index(0), app::notify::Manager::NotificationRole));
         QVERIFY(recovery);
         fixture.window->close();
         QCOMPARE(fixture.notifications.currentDecision(), recovery);
@@ -143,7 +143,7 @@ private Q_SLOTS:
             Qt::black);
         QTRY_COMPARE(saves.count(), 2);
         QCOMPARE(recovery->id(), recoveryId);
-        QCOMPARE(recovery->presentation(), app::notify::Message::Presentation::Decision);
+        QCOMPARE(recovery->presentation(), app::notify::Presentation::Decision);
 
         QTest::ignoreMessage(QtWarningMsg, QRegularExpression(u".*Cannot save.*"_s));
         QTest::ignoreMessage(QtWarningMsg, QRegularExpression(u".*Save sketch failed.*"_s));

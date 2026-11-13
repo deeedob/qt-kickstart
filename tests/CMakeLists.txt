@@ -29,3 +29,5 @@ add_subdirectory(notify)
 add_subdirectory(canvas) # demo
 add_subdirectory(sketchbook) # demo
 add_subdirectory(controls)
+
+add_subdirectory(manual/notify)

@@ -37,8 +37,10 @@ The other side of the contract is in `Main.qml`: its root window requires the sa
 properties that `main()` supplies. This adapted excerpt omits the window's visual content:
 
 ```qml
+import App.Notify as Notify
+
 ApplicationWindow {
-    required property NotificationCenter notifications
+    required property Notify.Manager notifications
     required property SketchbookViewModel sketchbook
     required property CanvasStore canvas
 }
@@ -119,14 +121,14 @@ QML can hold a reference to a C++ object without owning it. An object passed fro
 must outlive the QML engine and its views. A QObject returned from an invokable can instead
 become QML-owned unless it has a parent, so make ownership explicit when exposing one.
 
-A notification request separates ownership from relevance. The notification center owns
-the request object, while its explicit QObject context determines how long the request is
-useful. Destroying that context cancels the request, even if a card or dialog is open.
-A request that must survive navigation uses a context that survives the page.
+A notification separates ownership from relevance. The notification manager owns
+the live `Notification`, while its explicit QObject context determines how long it is
+useful. Destroying that context cancels the notification, even if a card or dialog is open.
+A notification that must survive navigation uses a context that survives the page.
 
-Notification actions carry callbacks bound to that same context. Choosing an action finishes
-the message once and invokes its callback while the context remains alive. Ordinary callers
-do not allocate request objects, connect completion signals or dispatch action IDs.
+Pass an optional completion callback to `post(options, context, callback)` in C++ or QML.
+The callback receives the finish reason and action ID while the context remains alive.
+Callers can also observe the returned notification's `finished` signal.
 
 ## Custom rendering has a thread boundary {#sec-custom-items}
 

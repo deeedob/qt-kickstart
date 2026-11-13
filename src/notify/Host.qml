@@ -1,27 +1,31 @@
 pragma ComponentBehavior: Bound
 
-import App.Controls
 import QtQuick
 import QtQuick.Window
+
+import App.Controls
+import App.Notify as Notify
 
 Item {
     id: root
 
-    required property NotificationCenter center
+    required property Notify.Manager manager
+    property alias notificationDelegate: cardList.delegate
+    property alias decisionDelegate: decisionDialog.decisionDelegate
     readonly property bool hostActive: Window.window ? Window.window.active : true
 
     width: parent ? parent.width : 0
     height: parent ? parent.height : 0
 
     Component.onCompleted: {
-        if (root.center.currentDecision)
+        if (root.manager.currentDecision)
             decisionDialog.open();
     }
 
-    Component.onDestruction: root.center.shutdown()
+    Component.onDestruction: root.manager.shutdown()
 
     Binding {
-        target: root.center
+        target: root.manager
         property: "hostActive"
         value: root.hostActive
     }
@@ -31,7 +35,7 @@ Item {
 
         interval: 0
         onTriggered: {
-            if (!root.center.currentDecision)
+            if (!root.manager.currentDecision)
                 decisionDialog.close();
         }
     }
@@ -43,10 +47,10 @@ Item {
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottomMargin: Theme.spacing * 3
-        width: Math.min(320, Math.max(0, root.width - Theme.spacing * 4))
+        width: Math.min(332, Math.max(0, root.width - Theme.spacing * 2))
         height: Math.min(contentHeight, Math.min(216, root.height * 0.4))
         spacing: Theme.spacing
-        model: root.center
+        model: root.manager
         clip: true
         boundsBehavior: Flickable.StopAtBounds
 
@@ -66,21 +70,7 @@ Item {
             policy: ScrollBar.AsNeeded
         }
 
-        delegate: Item {
-            required property Message notification
-
-            width: cardList.width
-            height: card.implicitHeight
-
-            Card {
-                id: card
-
-                anchors.left: parent.left
-                anchors.right: parent.right
-                notification: parent.notification
-                viewport: cardList
-            }
-        }
+        delegate: defaultNotification
     }
 
     Button {
@@ -91,8 +81,8 @@ Item {
         anchors.bottom: cardList.top
         anchors.bottomMargin: Theme.spacing / 2
         visible: cardList.contentHeight > cardList.height + 1
-        width: 32
-        height: 32
+        width: 26
+        height: 26
         padding: 0
         horizontalPadding: 0
         verticalPadding: 0
@@ -101,27 +91,36 @@ Item {
             color: countButton.hovered ? Theme.hover : Theme.surface
             border.color: Theme.border
         }
-        text: hovered || visualFocus ? "×" : root.center.count.toString()
+        text: hovered || visualFocus ? "×" : root.manager.count.toString()
         Accessible.name: qsTr("Dismiss passive notifications")
-        onClicked: root.center.dismissPassive()
+        onClicked: root.manager.dismissPassive()
     }
 
-    DecisionDialog {
+    Notify.Dialog {
         id: decisionDialog
-        objectName: "decisionDialog"
 
-        notification: root.center.currentDecision
+        notification: root.manager.currentDecision
+    }
+
+    Component {
+        id: defaultNotification
+
+        Notify.Card {
+            viewport: cardList
+            width: Math.max(0, cardList.width - Theme.spacing)
+            x: Theme.spacing / 2
+        }
     }
 
     Connections {
-        target: root.center
+        target: root.manager
 
         function onRowsInserted(): void {
-            cardList.positionViewAtBeginning();
+            Qt.callLater(cardList.positionViewAtBeginning);
         }
 
         function onCurrentDecisionChanged(): void {
-            if (root.center.currentDecision) {
+            if (root.manager.currentDecision) {
                 decisionCloseTimer.stop();
                 if (!decisionDialog.visible)
                     decisionDialog.open();

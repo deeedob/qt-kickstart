@@ -4,97 +4,97 @@
 <context>
     <name>AboutDialog</name>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="85"/>
+        <location filename="../src/app/AboutDialog.qml" line="88"/>
         <source>Version %1</source>
         <translation>Version %1</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="91"/>
+        <location filename="../src/app/AboutDialog.qml" line="94"/>
         <source>Build info</source>
         <translation>Build-Info</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="95"/>
+        <location filename="../src/app/AboutDialog.qml" line="97"/>
         <source>Build</source>
         <translation>Build</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="102"/>
+        <location filename="../src/app/AboutDialog.qml" line="104"/>
         <source>Configured (UTC)</source>
         <translation>Konfiguriert (UTC)</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="108"/>
+        <location filename="../src/app/AboutDialog.qml" line="110"/>
         <source>Compiler</source>
         <translation>Compiler</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="114"/>
+        <location filename="../src/app/AboutDialog.qml" line="116"/>
         <source>Target platform</source>
         <translation>Zielplattform</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="120"/>
+        <location filename="../src/app/AboutDialog.qml" line="122"/>
         <source>Build Qt</source>
         <translation>Qt beim Build</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="135"/>
+        <location filename="../src/app/AboutDialog.qml" line="137"/>
         <source>Runtime info</source>
         <translation>Laufzeit-Info</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="139"/>
+        <location filename="../src/app/AboutDialog.qml" line="140"/>
         <source>Operating system</source>
         <translation>Betriebssystem</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="126"/>
+        <location filename="../src/app/AboutDialog.qml" line="128"/>
         <source>Qt linkage</source>
         <translation>Qt-Verknüpfung</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="129"/>
+        <location filename="../src/app/AboutDialog.qml" line="131"/>
         <source>Shared</source>
         <translation>Dynamisch</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="129"/>
+        <location filename="../src/app/AboutDialog.qml" line="131"/>
         <source>Static</source>
         <translation>Statisch</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="145"/>
+        <location filename="../src/app/AboutDialog.qml" line="146"/>
         <source>Kernel version</source>
         <translation>Kernelversion</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="151"/>
+        <location filename="../src/app/AboutDialog.qml" line="152"/>
         <source>Window system</source>
         <translation>Fenstersystem</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="192"/>
+        <location filename="../src/app/AboutDialog.qml" line="193"/>
         <source>Source code</source>
         <translation>Quellcode</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="200"/>
+        <location filename="../src/app/AboutDialog.qml" line="201"/>
         <source>Guide</source>
         <translation>Leitfaden</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="179"/>
+        <location filename="../src/app/AboutDialog.qml" line="180"/>
         <source>Built with Qt, used under the LGPL version 3. The licenses of all third-party components ship with the application, in its licenses folder.</source>
         <translation>Erstellt mit Qt, verwendet unter der LGPL Version 3. Die Lizenzen aller Komponenten von Drittanbietern liegen der Anwendung im Ordner „licenses“ bei.</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="172"/>
+        <location filename="../src/app/AboutDialog.qml" line="173"/>
         <source>Open licenses folder</source>
         <translation>Lizenzordner öffnen</translation>
     </message>
     <message>
-        <location filename="../src/app/AboutDialog.qml" line="167"/>
+        <location filename="../src/app/AboutDialog.qml" line="168"/>
         <source>Open log folder</source>
         <translation>Log-Ordner öffnen</translation>
     </message>
@@ -102,19 +102,19 @@
 <context>
     <name>CanvasPage</name>
     <message>
-        <location filename="../src/canvas/CanvasPage.qml" line="87"/>
+        <location filename="../src/canvas/CanvasPage.qml" line="88"/>
         <source>Ink %1</source>
         <translation>Tinte %1</translation>
     </message>
     <message>
-        <location filename="../src/canvas/CanvasPage.qml" line="113"/>
         <location filename="../src/canvas/CanvasPage.qml" line="114"/>
         <location filename="../src/canvas/CanvasPage.qml" line="115"/>
+        <location filename="../src/canvas/CanvasPage.qml" line="116"/>
         <source>Snap shapes</source>
         <translation>Formen einrasten</translation>
     </message>
     <message>
-        <location filename="../src/canvas/CanvasPage.qml" line="132"/>
+        <location filename="../src/canvas/CanvasPage.qml" line="133"/>
         <source>Undo</source>
         <translation>Rückgängig</translation>
     </message>
@@ -134,17 +134,17 @@
         <translation>Liniert</translation>
     </message>
     <message>
-        <location filename="../src/canvas/CanvasPage.qml" line="139"/>
+        <location filename="../src/canvas/CanvasPage.qml" line="140"/>
         <source>Redo</source>
         <translation>Wiederholen</translation>
     </message>
     <message>
-        <location filename="../src/canvas/CanvasPage.qml" line="146"/>
+        <location filename="../src/canvas/CanvasPage.qml" line="147"/>
         <source>Clear</source>
         <translation>Leeren</translation>
     </message>
     <message>
-        <location filename="../src/canvas/CanvasPage.qml" line="107"/>
+        <location filename="../src/canvas/CanvasPage.qml" line="108"/>
         <source>%1 px</source>
         <translation>%1 px</translation>
     </message>
@@ -189,32 +189,32 @@
         <translation>Stärke</translation>
     </message>
     <message>
-        <location filename="../src/canvas/CanvasPage.qml" line="268"/>
+        <location filename="../src/canvas/CanvasPage.qml" line="269"/>
         <source>Draw here. Circles, rectangles and triangles snap into shape.</source>
         <translation>Hier zeichnen. Kreise, Rechtecke und Dreiecke rasten in Form ein.</translation>
     </message>
     <message>
-        <location filename="../src/canvas/CanvasPage.qml" line="278"/>
+        <location filename="../src/canvas/CanvasPage.qml" line="279"/>
         <source>%1%</source>
         <translation>%1%</translation>
     </message>
     <message>
-        <location filename="../src/canvas/CanvasPage.qml" line="307"/>
+        <location filename="../src/canvas/CanvasPage.qml" line="308"/>
         <source>Fit canvas to window</source>
         <translation>Leinwand ins Fenster einpassen</translation>
     </message>
     <message>
-        <location filename="../src/canvas/CanvasPage.qml" line="352"/>
+        <location filename="../src/canvas/CanvasPage.qml" line="353"/>
         <source>Snapped to a circle</source>
         <translation>Zu einem Kreis eingerastet</translation>
     </message>
     <message>
-        <location filename="../src/canvas/CanvasPage.qml" line="355"/>
+        <location filename="../src/canvas/CanvasPage.qml" line="356"/>
         <source>Snapped to a rectangle</source>
         <translation>Zu einem Rechteck eingerastet</translation>
     </message>
     <message>
-        <location filename="../src/canvas/CanvasPage.qml" line="358"/>
+        <location filename="../src/canvas/CanvasPage.qml" line="359"/>
         <source>Snapped to a triangle</source>
         <translation>Zu einem Dreieck eingerastet</translation>
     </message>
@@ -222,29 +222,17 @@
 <context>
     <name>Card</name>
     <message>
-        <location filename="../src/notify/Card.qml" line="111"/>
-        <source>Success</source>
-        <translation type="unfinished">Erfolg</translation>
-    </message>
-    <message>
-        <location filename="../src/notify/Card.qml" line="113"/>
-        <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
-    </message>
-    <message>
-        <location filename="../src/notify/Card.qml" line="115"/>
-        <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
-    </message>
-    <message>
-        <location filename="../src/notify/Card.qml" line="117"/>
-        <source>Information</source>
-        <translation type="unfinished">Information</translation>
-    </message>
-    <message>
-        <location filename="../src/notify/Card.qml" line="174"/>
+        <location filename="../src/notify/Card.qml" line="146"/>
         <source>Dismiss notification</source>
-        <translation type="unfinished">Benachrichtigung schließen</translation>
+        <translation>Benachrichtigung schließen</translation>
+    </message>
+</context>
+<context>
+    <name>Host</name>
+    <message>
+        <location filename="../src/notify/Host.qml" line="95"/>
+        <source>Dismiss passive notifications</source>
+        <translation>Passive Benachrichtigungen schließen</translation>
     </message>
 </context>
 <context>
@@ -310,11 +298,26 @@
     </message>
 </context>
 <context>
-    <name>NotificationHost</name>
+    <name>SeverityBadge</name>
     <message>
-        <location filename="../src/notify/NotificationHost.qml" line="104"/>
-        <source>Dismiss passive notifications</source>
-        <translation>Passive Benachrichtigungen schließen</translation>
+        <location filename="../src/notify/SeverityBadge.qml" line="37"/>
+        <source>Success</source>
+        <translation type="unfinished">Erfolg</translation>
+    </message>
+    <message>
+        <location filename="../src/notify/SeverityBadge.qml" line="38"/>
+        <source>Warning</source>
+        <translation type="unfinished">Warnung</translation>
+    </message>
+    <message>
+        <location filename="../src/notify/SeverityBadge.qml" line="39"/>
+        <source>Error</source>
+        <translation type="unfinished">Fehler</translation>
+    </message>
+    <message>
+        <location filename="../src/notify/SeverityBadge.qml" line="40"/>
+        <source>Information</source>
+        <translation type="unfinished">Information</translation>
     </message>
 </context>
 <context>
@@ -397,47 +400,47 @@
         <translation>Skizze %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="296"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="283"/>
         <source>Rename sketch</source>
         <translation>Skizze umbenennen</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="325"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="311"/>
         <source>Retry</source>
         <translation>Erneut versuchen</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="328"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="314"/>
         <source>Discard</source>
         <translation>Verwerfen</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="333"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="315"/>
         <source>Keep editing</source>
         <translation>Weiter bearbeiten</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="167"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="158"/>
         <source>Could not open sketch: %1</source>
         <translation>Skizze konnte nicht geöffnet werden: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="219"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="210"/>
         <source>Could not rename sketch: %1</source>
         <translation>Skizze konnte nicht umbenannt werden: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="228"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="219"/>
         <source>Could not duplicate sketch: %1</source>
         <translation>Skizze konnte nicht dupliziert werden: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="239"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="230"/>
         <source>Could not delete sketch: %1</source>
         <translation>Skizze konnte nicht gelöscht werden: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="216"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="207"/>
         <source>Could not save sketch: %1</source>
         <translation>Skizze konnte nicht gespeichert werden: %1</translation>
     </message>
@@ -452,48 +455,48 @@
         <translation>Rückgängig gemacht</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="203"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="194"/>
         <source>Duplicated %1</source>
         <translation>%1 dupliziert</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="244"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="236"/>
         <source>Deleted %1</source>
         <translation>%1 gelöscht</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="293"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="280"/>
         <source>Open sketch</source>
         <translation>Skizze öffnen</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="299"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="286"/>
         <source>Duplicate sketch</source>
         <translation>Skizze duplizieren</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="302"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="289"/>
         <source>Save sketch</source>
         <translation>Skizze speichern</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="305"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="292"/>
         <source>Delete sketch</source>
         <translation>Skizze löschen</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="310"/>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="316"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="297"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="303"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="336"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="318"/>
         <source>Could not save sketch</source>
         <translation>Skizze konnte nicht gespeichert werden</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="387"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="374"/>
         <source> copy</source>
         <translation> Kopie</translation>
     </message>

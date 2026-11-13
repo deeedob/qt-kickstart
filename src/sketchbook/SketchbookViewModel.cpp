@@ -2,7 +2,7 @@
 
 #include <QtCore/QLoggingCategory>
 #include <QtCore/QUuid>
-#include <Message.hpp>
+#include <Notification.hpp>
 
 using namespace Qt::StringLiterals;
 
@@ -11,7 +11,7 @@ Q_STATIC_LOGGING_CATEGORY(lcSketchbook, "app.sketchbook")
 namespace app::sketchbook {
 
 SketchbookViewModel::SketchbookViewModel(SketchStorage &storage, canvas::CanvasStore &canvas,
-    notify::NotificationCenter &notifications, QObject *parent)
+    notify::Manager &notifications, QObject *parent)
     : QObject(parent), m_storage(storage), m_canvas(canvas), m_notifications(notifications)
 {
     connect(&m_storage, &SketchStorage::listed, this, &SketchbookViewModel::onListed);
@@ -23,7 +23,7 @@ SketchbookViewModel::SketchbookViewModel(SketchStorage &storage, canvas::CanvasS
         &SketchbookViewModel::onUnsavedChangesChanged);
     connect(&m_canvas, &canvas::CanvasStore::edited, this, &SketchbookViewModel::saveOpenSketch);
     connect(&m_canvas, &canvas::CanvasStore::historyMoved, this, [this](bool redo) {
-        m_notifications.postMessage(redo ? tr("Redone") : tr("Undone"), this);
+        m_notifications.postMessage(redo ? tr("Redone") : tr("Undone"));
     });
     m_storage.list();
 }
@@ -192,7 +192,7 @@ void SketchbookViewModel::onMutationFinished(const QString &id, const QString &s
             if (row >= 0) {
                 notify::Options options;
                 options.message = tr("Duplicated %1").arg(m_model.entry(row).name);
-                options.severity = notify::Message::Severity::Success;
+                options.severity = notify::Severity::Success;
                 m_notifications.post(options, this);
             }
         }
@@ -234,7 +234,7 @@ void SketchbookViewModel::onRemoved(const QString &id, const QString &error)
     if (row >= 0) {
         notify::Options options;
         options.message = tr("Deleted %1").arg(m_model.entry(row).name);
-        options.severity = notify::Message::Severity::Success;
+        options.severity = notify::Severity::Success;
         m_notifications.post(options, this);
         m_model.removeAt(row);
     }
@@ -301,44 +301,48 @@ void SketchbookViewModel::reportError(Operation operation, const QString &source
     notify::Options options;
     options.title = std::move(title);
     options.message = tr("%1: %2").arg(source, message);
-    options.severity = notify::Message::Severity::Error;
+    options.severity = notify::Severity::Error;
     m_notifications.post(options, this);
 }
 
 void SketchbookViewModel::showSaveError()
 {
     QList<notify::Action> actions{
-        { .id = {}, .text = tr("Retry"), .triggered = [this] { m_storage.retryFailedSaves(); } },
+        { .id = u"retry"_s, .text = tr("Retry") },
     };
     if (m_closePending) {
-        actions.append({ .id = {}, .text = tr("Discard"), .triggered = [this] {
-                            m_closePending = false;
-                            m_discardApproved = true;
-                            Q_EMIT closeReady();
-                        } });
-        actions.append(
-            { .id = {}, .text = tr("Keep editing"), .triggered = [this] { keepEditing(); } });
+        actions.append({ .id = u"discard"_s, .text = tr("Discard") });
+        actions.append({ .id = u"keep"_s, .text = tr("Keep editing") });
     }
     notify::Options options;
     options.title = tr("Could not save sketch");
     options.message = m_recoveryMessage;
-    options.severity = notify::Message::Severity::Error;
+    options.severity = notify::Severity::Error;
     options.presentation = m_closePending
-        ? notify::Message::Presentation::Decision
-        : notify::Message::Presentation::Persistent;
+        ? notify::Presentation::Decision
+        : notify::Presentation::Persistent;
     options.actions = actions;
-    options.finished = [this](notify::Message::FinishReason reason) {
-        m_recovery = nullptr;
-        if (reason == notify::Message::FinishReason::Dismissed)
-            keepEditing();
-    };
     if (m_recovery) {
         m_recovery->setMessage(options.message);
         m_recovery->setActions(options.actions);
         m_recovery->setPresentation(options.presentation);
         return;
     }
-    m_recovery = m_notifications.post(options, this);
+    auto *recovery = m_notifications.post(options, this,
+        [this](notify::FinishReason reason, const QString &action) {
+            m_recovery = nullptr;
+            if (reason == notify::FinishReason::Dismissed || action == u"keep"_s)
+                keepEditing();
+            else if (action == u"retry"_s)
+                m_storage.retryFailedSaves();
+            else if (action == u"discard"_s) {
+                m_closePending = false;
+                m_discardApproved = true;
+                Q_EMIT closeReady();
+            }
+        });
+    if (recovery)
+        m_recovery = recovery;
 }
 
 void SketchbookViewModel::keepEditing()

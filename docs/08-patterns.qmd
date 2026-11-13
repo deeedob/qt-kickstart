@@ -26,11 +26,11 @@ commands such as `create()` and `rename()`; validation and storage stay behind t
 A Qt Test can construct the view model, call a command, and inspect the resulting model without
 loading QML.
 
-## A notification center shares feedback {#sec-notification-flow}
+## A notification manager shares feedback {#sec-notification-flow}
 
 A user needs feedback when an action succeeds, fails, or needs a decision. Without a shared
 place for that feedback, each screen must decide where to show messages and what to do when
-several arrive at once. A notification center gives the application one place to present them.
+several arrive at once. A notification manager gives the application one place to present them.
 
 This is useful when C++ performs work on behalf of different screens. The code that detects
 an event can post a message without reaching into a QML object. The view can then show brief
@@ -38,7 +38,7 @@ feedback without interrupting the user, or ask for a decision when the work cann
 without one. Use notifications for events that matter to the user; routine background work
 usually needs no message.
 
-Sketchbook uses `app::notify::NotificationCenter` for feedback from C++. For example, moving
+Sketchbook uses `app::notify::Manager` for feedback from C++. For example, moving
 through the drawing history posts a short message:
 
 ::: {.snippet source="src/sketchbook/SketchbookViewModel.cpp"}
@@ -50,8 +50,61 @@ through the drawing history posts a short message:
 
 :::
 
-A shared center is helpful when messages come from several features or need consistent
+A shared manager is helpful when messages come from several features or need consistent
 presentation. A simple label or dialog can be enough when feedback belongs to one screen.
+
+Use `postMessage()` for short feedback. You can ignore its return value: the manager owns the
+notification. For example, in QML:
+
+```qml
+root.notifications.postMessage(qsTr("Saved"))
+```
+
+To add actions or select a presentation, pass options and their owning `QObject` to
+`post()`. The returned `Notification` emits `finished(reason, actionId)` once. Pass an
+optional third argument to connect a completion callback before the notification is
+published, or observe the signal yourself. The manager cancels the notification after its
+context is destroyed. Posting returns null if the context is invalid, the manager has shut
+down, or the notification finishes during posting. Sketchbook uses action IDs to handle
+save recovery.
+
+Feature imports use an alias so component names can stay short:
+
+```qml
+import App.Notify as Notify
+
+Notify.Host {
+    manager: root.notifications
+}
+```
+
+C++ uses `app::notify::Severity::Warning`; QML uses
+`Notify.Severity.Warning`. `Namespace.hpp` groups the feature's enums, `Options`,
+and `Action`. The enums are declared directly in `app::notify`. Small QML adapters
+forward their values, exposing each enum under its own name. Structured values use
+`Notify.options` and `Notify.action` in QML.
+
+`Notify.Host` has separate `notificationDelegate` and `decisionDelegate` components.
+Both expose the active delegate and have a built-in default; assign a component to replace it.
+Assigning null removes the delegate. Use a conditional `Binding` to restore the default after a
+temporary override.
+The notification delegate is a list delegate with a required `notification` property. Custom
+cards must report presentation and pause state through `notification.setPresentationState()`
+so passive timeouts run only while visible. A decision delegate binds its `notification` to
+the manager's `currentDecision`, handles its own keyboard focus, and calls `choose()` or
+`dismiss()` on the notification. `Notify.Dialog` owns the modal presentation; the host
+coordinates the queue.
+
+Build and run the manual notification test to exercise the API and compare custom views:
+
+```sh
+cmake --build --preset dev --target man_notify
+build/dev/tests/manual/notify/man_notify
+```
+
+The target requires `BUILD_TESTING` and is excluded from the default build and CTest.
+It can post notifications and decisions, queue requests, and change a notification's
+presentation. The regular test suite runs offscreen without waiting for input.
 
 ## Flux makes edits explicit {#sec-flux}
 

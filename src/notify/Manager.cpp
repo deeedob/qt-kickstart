@@ -1,30 +1,34 @@
-#include <NotificationCenter.hpp>
+#include "Manager.hpp"
 
+#include <QtCore/QLoggingCategory>
 #include <QtCore/QThread>
 #include <QtCore/QTimer>
 #include <QtQml/QJSEngine>
+#include <QtQml/QJSManagedValue>
 
 #include <algorithm>
 #include <utility>
 
 namespace app::notify {
 
-NotificationCenter::NotificationCenter(QObject *parent)
+Q_STATIC_LOGGING_CATEGORY(lcNotify, "app.notify")
+
+Manager::Manager(QObject *parent)
     : QAbstractListModel(parent)
 {
 }
 
-NotificationCenter::~NotificationCenter()
+Manager::~Manager()
 {
     shutdown();
 }
 
-int NotificationCenter::rowCount(const QModelIndex &parent) const
+int Manager::rowCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : static_cast<int>(m_cards.size());
 }
 
-QVariant NotificationCenter::data(const QModelIndex &index, int role) const
+QVariant Manager::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() < 0 || index.row() >= rowCount())
         return {};
@@ -33,32 +37,69 @@ QVariant NotificationCenter::data(const QModelIndex &index, int role) const
     return QVariant::fromValue(m_cards[static_cast<std::size_t>(index.row())]);
 }
 
-QHash<int, QByteArray> NotificationCenter::roleNames() const
+QHash<int, QByteArray> Manager::roleNames() const
 {
     return {
         { NotificationRole, QByteArrayLiteral("notification") }
     };
 }
 
-int NotificationCenter::count() const
+int Manager::count() const
 {
     return rowCount();
 }
 
-Message *NotificationCenter::currentDecision() const
+Notification *Manager::currentDecision() const
 {
     return m_currentDecision;
 }
 
-Message *NotificationCenter::post(const Options &options, QObject *context)
+Notification *Manager::post(const Options &options, QObject *context)
+{
+    return post(options, context, std::function<void(FinishReason, const QString &)>{});
+}
+
+Notification *Manager::post(const Options &options, QObject *context, const QJSValue &onFinished)
+{
+    if (onFinished.isUndefined() || onFinished.isNull())
+        return post(options, context);
+    if (!onFinished.isCallable()) {
+        qCWarning(lcNotify, "Notification completion callback must be callable");
+        return nullptr;
+    }
+    if (!context)
+        return nullptr;
+    const QPointer<QJSEngine> engine(qjsEngine(context));
+    if (!engine) {
+        qCWarning(lcNotify, "Notification callback context must belong to a JavaScript engine");
+        return nullptr;
+    }
+    return post(options, context,
+        [onFinished, engine](FinishReason reason, const QString &actionId) {
+            if (!engine)
+                return;
+            const QJSManagedValue callback(onFinished, engine);
+            callback.call({ QJSValue(static_cast<int>(reason)), QJSValue(actionId) });
+            if (engine && engine->hasError())
+                qCWarning(lcNotify).noquote()
+                    << "Notification completion callback failed:"
+                    << engine->catchError().toString();
+        });
+}
+
+Notification *Manager::post(const Options &options, QObject *context,
+    std::function<void(FinishReason, const QString &)> onFinished)
 {
     if (m_shutdown || !context || QThread::currentThread() != thread()
         || context->thread() != thread())
         return nullptr;
 
-    auto *notification = new Message(this, ++m_nextId, options, context);
+    auto *notification = new Notification(this, ++m_nextId, options, context);
+    const QPointer<Notification> guardedNotification(notification);
     QJSEngine::setObjectOwnership(notification, QJSEngine::CppOwnership);
-    if (options.presentation == Message::Presentation::Decision) {
+    if (onFinished)
+        connect(notification, &Notification::finished, context, std::move(onFinished));
+    if (options.presentation == Presentation::Decision) {
         if (!m_currentDecision) {
             m_currentDecision = notification;
             Q_EMIT currentDecisionChanged();
@@ -69,17 +110,19 @@ Message *NotificationCenter::post(const Options &options, QObject *context)
     } else {
         insertCard(notification);
     }
-    return notification;
+    return guardedNotification && !guardedNotification->isFinished()
+        ? guardedNotification.data()
+        : nullptr;
 }
 
-Message *NotificationCenter::postMessage(const QString &message, QObject *context)
+Notification *Manager::postMessage(const QString &message)
 {
     Options options;
     options.message = message;
-    return post(options, context);
+    return post(options, this);
 }
 
-void NotificationCenter::setHostActive(bool active)
+void Manager::setHostActive(bool active)
 {
     if (m_hostActive == active)
         return;
@@ -88,25 +131,25 @@ void NotificationCenter::setHostActive(bool active)
     updateTimerEligibility();
 }
 
-void NotificationCenter::dismissPassive()
+void Manager::dismissPassive()
 {
-    std::vector<QPointer<Message>> passive;
+    std::vector<QPointer<Notification>> passive;
     for (auto *message : m_cards)
-        if (message->presentation() == Message::Presentation::Passive)
+        if (message->presentation() == Presentation::Passive)
             passive.emplace_back(message);
     for (const auto &message : passive) {
         auto *current = message.data();
-        if (current && current->presentation() == Message::Presentation::Passive)
+        if (current && current->presentation() == Presentation::Passive)
             current->dismiss();
     }
 }
 
-void NotificationCenter::shutdown()
+void Manager::shutdown()
 {
     if (m_shutdown)
         return;
     m_shutdown = true;
-    std::vector<QPointer<Message>> requests;
+    std::vector<QPointer<Notification>> requests;
     requests.reserve(m_cards.size() + m_decisions.size() + (m_currentDecision ? 1U : 0U));
     for (auto *notification : m_cards)
         requests.emplace_back(notification);
@@ -116,21 +159,18 @@ void NotificationCenter::shutdown()
         requests.emplace_back(m_currentDecision);
     for (const auto &notification : requests)
         if (notification)
-            finish(notification, Message::FinishReason::Cancelled);
+            finish(notification, FinishReason::Cancelled);
 }
 
-void NotificationCenter::finish(Message *notification, Message::FinishReason reason,
-    const QString &actionId)
+void Manager::finish(Notification *notification, FinishReason reason, const QString &actionId)
 {
     if (!notification || notification->m_finished)
         return;
 
-    const auto callback = std::move(notification->m_finishedCallback);
-    const QPointer<QObject> context = notification->m_context;
     notification->m_finished = true;
     notification->m_actions.clear();
     notification->m_timer->stop();
-    QPointer<Message> guardedNotification(notification);
+    QPointer<Notification> guardedNotification(notification);
     removeNotification(notification);
     if (!guardedNotification)
         return;
@@ -141,35 +181,40 @@ void NotificationCenter::finish(Message *notification, Message::FinishReason rea
     if (!guardedNotification)
         return;
     Q_EMIT guardedNotification->finished(reason, actionId);
-    if (callback && context)
-        callback(reason);
     if (guardedNotification)
         guardedNotification->deleteLater();
 }
 
-void NotificationCenter::presentationChanged(Message *notification, Message::Presentation previous)
+void Manager::presentationChanged(Notification *notification, Presentation previous)
 {
+    const QPointer<Notification> guardedNotification(notification);
     const auto current = notification->presentation();
-    if (previous != Message::Presentation::Decision && current != Message::Presentation::Decision) {
+    if (previous != Presentation::Decision && current != Presentation::Decision) {
         updateTimerEligibility();
         return;
     }
 
-    if (previous == Message::Presentation::Decision) {
+    if (previous == Presentation::Decision) {
         if (m_currentDecision == notification) {
             m_currentDecision = nullptr;
             promoteDecision();
         } else {
             std::erase(m_decisions, notification);
         }
+        if (!guardedNotification || guardedNotification->isFinished())
+            return;
         insertCard(notification);
-    } else if (notification->presentation() == Message::Presentation::Decision) {
+    } else if (notification->presentation() == Presentation::Decision) {
         const int row = rowOf(notification);
         if (row >= 0) {
             beginRemoveRows({}, row, row);
             m_cards.erase(m_cards.begin() + row);
             endRemoveRows();
             Q_EMIT countChanged();
+        }
+        if (!guardedNotification || guardedNotification->isFinished()) {
+            updateTimerEligibility();
+            return;
         }
         if (!m_currentDecision) {
             m_currentDecision = notification;
@@ -181,14 +226,14 @@ void NotificationCenter::presentationChanged(Message *notification, Message::Pre
     }
 }
 
-void NotificationCenter::updateTimerEligibility()
+void Manager::updateTimerEligibility()
 {
     const bool active = m_hostActive && !m_currentDecision;
     for (auto *notification : m_cards)
-        notification->setCenterActive(active);
+        notification->setManagerActive(active);
 }
 
-void NotificationCenter::promoteDecision()
+void Manager::promoteDecision()
 {
     if (m_currentDecision)
         return;
@@ -200,11 +245,11 @@ void NotificationCenter::promoteDecision()
     updateTimerEligibility();
 }
 
-void NotificationCenter::insertCard(Message *notification)
+void Manager::insertCard(Notification *notification)
 {
     const auto severity = notification->severity();
     const auto row = std::ranges::find_if(m_cards.begin(), m_cards.end(),
-        [severity](const Message *existing) {
+        [severity](const Notification *existing) {
             return static_cast<int>(existing->severity()) <= static_cast<int>(severity);
         });
     const int position = static_cast<int>(std::distance(m_cards.begin(), row));
@@ -215,7 +260,7 @@ void NotificationCenter::insertCard(Message *notification)
     updateTimerEligibility();
 }
 
-void NotificationCenter::removeNotification(Message *notification)
+void Manager::removeNotification(Notification *notification)
 {
     const int row = rowOf(notification);
     if (row >= 0) {
@@ -235,7 +280,7 @@ void NotificationCenter::removeNotification(Message *notification)
     std::erase(m_decisions, notification);
 }
 
-int NotificationCenter::rowOf(const Message *notification) const
+int Manager::rowOf(const Notification *notification) const
 {
     const auto found = std::ranges::find(m_cards, notification);
     return found == m_cards.end() ? -1 : static_cast<int>(std::distance(m_cards.begin(), found));
