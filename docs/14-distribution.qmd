@@ -31,19 +31,34 @@ Sign executables and installers with an Authenticode certificate and a timestamp
 keeps a signature valid after the certificate expires. Use a hardware-backed or cloud signing
 service for CI keys.
 
-## Linux packages use an install prefix {#sec-linux-package}
+## Linux ships an AppImage {#sec-linux-package}
 
-The Linux `.tar.gz` contains the deployed install prefix: `bin/` holds the application, with
-runtime libraries, Qt plugins, QML imports, and notices in their installed locations. Extract
-the whole archive and run the executable from `bin/`; keep the directory structure intact.
-This layout is not an AppImage or an AppDir.
+The Linux release workflow produces an x86-64 `.AppImage`. CPack stages the application under
+`usr/` in an AppDir. Qt 6.12's deployment script adds QML imports, Qt libraries, and plugins,
+including SVG, X11, Wayland, and the offscreen platform used by tests. Linuxdeploy then
+collects further dependencies and fixes their runtime paths. Its bundled AppImage output
+plugin builds the final image. No separate linuxdeploy Qt plugin is needed.
 
-Qt deployment gathers runtime dependencies, but a package still depends on the host's Linux
-ABI, glibc, graphics stack, and display services. A package built on a newer distribution may
-not run on an older one. Build on the oldest distribution you support and test the extracted
-archive on clean target systems without the development Qt installation. The release workflow
-builds on its configured Ubuntu runner; it does not establish compatibility with every Linux
-distribution or perform that clean-system test.
+On x86-64 Linux, install linuxdeploy using the checksum-verified download
+commands in `.github/workflows/release.yml`, then add their directory to `PATH`:
+
+```sh
+export PATH="$PWD/.cache/linuxdeploy:$PATH"
+cmake --workflow --preset release
+```
+
+The workflow pins a tagged linuxdeploy release, including its AppImage output plugin.
+Packaging requires `patchelf` and a shared Qt 6.12 installation with X11 and Wayland support.
+The project's vcpkg Qt feature provides that Qt configuration. The packaging tool runs through
+AppImage's extraction fallback, so building needs no FUSE mount.
+
+An AppImage still depends on the host's Linux ABI, glibc, graphics drivers, and display
+services. The Ubuntu 24.04 build establishes that baseline; it does not promise support for
+older distributions. Test hardware rendering and desktop integration on the systems you support.
+Users can extract the image with `--appimage-extract`, replace its dynamic Qt libraries,
+and run `squashfs-root/AppRun`. Notices are in `usr/bin/licenses/` inside the image.
+Its `system-docs` link exposes linuxdeploy's system-library notices; `common` contains the
+shared license texts referenced by Debian and Ubuntu copyright files.
 
 ## Stores trade control for services {#sec-stores}
 

@@ -21,9 +21,6 @@ if(APPLE)
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
     )
 endif()
-target_compile_definitions(app PRIVATE
-    APP_LICENSES_RELATIVE_TO_EXECUTABLE="${APP_LICENSES_RELATIVE_TO_EXECUTABLE}"
-)
 
 get_target_property(_build_info_header app_support APP_BUILD_INFO_HEADER)
 qt_add_qml_module(app_ui
@@ -78,7 +75,6 @@ app_add_qt_notices()
 
 app_copy_notices(app)
 
-# Qt's deploy tool makes the installed app self-contained. It runs last, after every file is in place.
 install(TARGETS app
     BUNDLE DESTINATION .
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
@@ -89,13 +85,16 @@ if(WIN32)
     # The deploy tool knows Qt's DLLs but not vcpkg's.
     install(FILES "$<TARGET_RUNTIME_DLLS:app>" DESTINATION "${CMAKE_INSTALL_BINDIR}")
 endif()
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    app_configure_appimage(app)
+    set(_extra_deploy_args INCLUDE_PLUGINS qwayland qsvg)
+endif()
 qt_generate_deploy_qml_app_script(
     TARGET app
     OUTPUT_SCRIPT _deploy_script
     NO_UNSUPPORTED_PLATFORM_ERROR
-    # Qt's own strings are already merged into the app's translations (MERGE_QT_TRANSLATIONS).
     NO_TRANSLATIONS
-    # Dependency symbols have no separate archive; preserve them during deployment.
+    ${_extra_deploy_args}
     DEPLOY_TOOL_OPTIONS $<$<PLATFORM_ID:Darwin>:-no-strip>
 )
 install(SCRIPT "${_deploy_script}")

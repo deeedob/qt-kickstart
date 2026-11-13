@@ -5,16 +5,17 @@ machine, includes its notices, and can be supported after it ships.
 
 ## Install before you package {#sec-deploy}
 
-Install into a clean prefix, then let Qt's deployment script collect the QML modules, plugins,
-and libraries it needs. Test that result away from the development machine.
+Install into a clean prefix, then collect the QML modules, plugins, and libraries it needs.
+Qt's deployment script handles each platform; linuxdeploy finishes the Linux AppDir.
+Test that result away from the development machine.
 
 Deployment is platform-specific. A macOS application uses a bundle, Windows needs DLLs beside
 the executable, and Linux packages need their runtime dependencies arranged for the target
 system. CPack wraps the installed files in a platform-specific package. Test the package on a
 clean machine: a development machine may hide missing plugins or libraries.
 
-The template currently packages a disk image on macOS, a ZIP archive on Windows, and a TGZ
-archive on Linux. Other package formats may suit your audience better. On Windows, Qt's deploy
+The template packages a disk image on macOS, a ZIP archive on Windows, and an AppImage
+on Linux. On Windows, Qt's deploy
 step knows its own DLLs; the install rules also copy other runtime DLLs required by the app.
 Qt plugins load at runtime, so a missing platform plugin may only become visible on a clean
 machine.
@@ -28,7 +29,7 @@ install(TARGETS app
 
 :::
 
-After installing the executable, the template generates and installs Qt's deployment script:
+The template generates and installs Qt's deployment script:
 
 ::: {.snippet source="src/app/CMakeLists.txt"}
 
@@ -40,7 +41,9 @@ install(SCRIPT "${_deploy_script}")
 :::
 
 The script runs during installation, after the app is in place. It collects Qt's required
-libraries, plugins, and QML imports for the supported deployment platform.
+libraries, plugins, and QML imports. Linux packaging uses CPack's External generator to stage
+the install rules under `AppDir/usr`. Qt puts libraries, plugins, and QML under `usr/lib`,
+where linuxdeploy can scan every binary for further dependencies before making the AppImage.
 
 ## Versions describe user impact {#sec-versions-and-backports}
 
@@ -120,6 +123,12 @@ Qt and each third-party library, font, and icon may carry different terms. Keep 
 notices and license texts with the distributed app, not only in the source repository. The
 About dialog provides a way to find the installed notices. `REUSE.toml` records license
 information for repository files, and the REUSE check helps find files without coverage.
+
+Notices live in `licenses/` beside the executable on every platform, including inside the
+macOS bundle and Linux AppImage. Development builds copy them to the same relative location.
+The application uses one relative lookup, with no build-machine path or fallback.
+On macOS that path is an internal link to `Contents/Resources/licenses`, where resource files
+belong for code signing.
 
 ::: {.more}
 **Template:** `src/app/CMakeLists.txt`, `cmake/Packaging.cmake`, and

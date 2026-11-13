@@ -61,10 +61,8 @@ endfunction()
 
 if(APPLE)
     set(APP_LICENSES_DIR "${PROJECT_NAME}.app/Contents/Resources/licenses")
-    set(APP_LICENSES_RELATIVE_TO_EXECUTABLE "../Resources/licenses")
 else()
-    set(APP_LICENSES_DIR "${CMAKE_INSTALL_DOCDIR}/licenses")
-    set(APP_LICENSES_RELATIVE_TO_EXECUTABLE "../${APP_LICENSES_DIR}")
+    set(APP_LICENSES_DIR "${CMAKE_INSTALL_BINDIR}/licenses")
 endif()
 
 function(app_add_notice name file)
@@ -75,18 +73,28 @@ endfunction()
 
 function(app_copy_notices target)
     get_property(notices GLOBAL PROPERTY APP_NOTICE_FILES)
-    set(directory "${CMAKE_CURRENT_BINARY_DIR}/licenses")
+    set(directory "$<TARGET_FILE_DIR:${target}>/licenses")
+    if(APPLE)
+        set(directory "$<TARGET_FILE_DIR:${target}>/../Resources/licenses")
+    endif()
     set(commands COMMAND "${CMAKE_COMMAND}" -E make_directory "${directory}")
+    if(APPLE)
+        list(APPEND commands
+            COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_FILE_DIR:${target}>"
+            COMMAND "${CMAKE_COMMAND}" -E create_symlink
+                "../Resources/licenses" "$<TARGET_FILE_DIR:${target}>/licenses")
+    endif()
+    set(files "")
     foreach(notice IN LISTS notices)
         string(REPLACE "|" ";" parts "${notice}")
         list(GET parts 0 name)
         list(GET parts 1 file)
+        list(APPEND files "${file}")
         list(APPEND commands COMMAND "${CMAKE_COMMAND}" -E copy_if_different
             "${file}" "${directory}/${name}.txt")
     endforeach()
-    add_custom_command(TARGET ${target} POST_BUILD ${commands}
-        COMMENT "Copying license notices for the development build" VERBATIM)
-    target_compile_definitions(${target} PRIVATE APP_DEV_LICENSES_DIRECTORY="${directory}")
+    add_custom_target(${target}_notices ${commands} DEPENDS ${files} VERBATIM)
+    add_dependencies(${target} ${target}_notices)
 endfunction()
 
 # vcpkg installs each port's license as share/<port>/copyright.
@@ -111,10 +119,74 @@ if(APPLE)
     set(CPACK_GENERATOR DragNDrop)
 elseif(WIN32)
     set(CPACK_GENERATOR ZIP)
-else()
-    set(CPACK_GENERATOR TGZ)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(CPACK_GENERATOR External)
+    set(CPACK_EXTERNAL_ENABLE_STAGING ON)
+    set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
+    set(CPACK_EXTERNAL_PACKAGE_SCRIPT "${PROJECT_BINARY_DIR}/AppImage.cmake")
 endif()
 include(CPack)
+
+function(app_configure_appimage target)
+    install(CODE [[
+        set(QT_DEPLOY_LIB_DIR lib)
+        set(QT_DEPLOY_PLUGINS_DIR lib/qt6/plugins)
+        set(QT_DEPLOY_QML_DIR lib/qt6/qml)
+    ]])
+    file(CONFIGURE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${APP_BUNDLE_ID}.desktop" CONTENT [[
+[Desktop Entry]
+Type=Application
+Name=@APP_DISPLAY_NAME@
+Comment=@PROJECT_DESCRIPTION@
+Exec=@PROJECT_NAME@
+Icon=@APP_BUNDLE_ID@
+Categories=Graphics;
+Terminal=false
+]] @ONLY)
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${APP_BUNDLE_ID}.desktop"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
+    install(FILES "${PROJECT_SOURCE_DIR}/src/app/app.svg"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps"
+        RENAME "${APP_BUNDLE_ID}.svg")
+    set(script [[
+        if(@CMAKE_CROSSCOMPILING@ OR NOT @QT6_IS_SHARED_LIBS_BUILD@)
+            message(FATAL_ERROR "AppImage packaging requires a native Linux build with shared Qt.")
+        endif()
+        find_program(linuxdeploy NAMES linuxdeploy linuxdeploy-@CMAKE_SYSTEM_PROCESSOR@.AppImage REQUIRED)
+        set(appDir "${CPACK_TEMPORARY_DIRECTORY}")
+        set(output "${CPACK_TOPLEVEL_DIRECTORY}/${CPACK_PACKAGE_FILE_NAME}.AppImage")
+        file(WRITE "${appDir}/qt.conf" "[Paths]\nPrefix = usr\nPlugins = lib/qt6/plugins\nQmlImports = lib/qt6/qml\n")
+        set(notices "${appDir}/usr/@CMAKE_INSTALL_BINDIR@/licenses")
+        file(CREATE_LINK "usr/@CMAKE_INSTALL_BINDIR@/licenses" "${appDir}/licenses" SYMBOLIC)
+        file(RELATIVE_PATH sharedData "${notices}" "${appDir}/usr/share")
+        file(MAKE_DIRECTORY "${appDir}/usr/share/doc")
+        file(CREATE_LINK "${sharedData}/doc" "${notices}/system-docs" SYMBOLIC)
+        if(EXISTS "/usr/share/common-licenses")
+            file(COPY "/usr/share/common-licenses" DESTINATION "${appDir}/usr/share")
+            file(CREATE_LINK "${sharedData}/common-licenses" "${notices}/common" SYMBOLIC)
+        endif()
+        execute_process(
+            COMMAND "@CMAKE_COMMAND@" -E env
+                "LDAI_OUTPUT=${output}"
+                "LINUXDEPLOY_OUTPUT_VERSION=@PROJECT_VERSION@"
+                "APPIMAGE_EXTRACT_AND_RUN=1"
+                "NO_STRIP=1"
+                "${linuxdeploy}" --appdir "${appDir}"
+                --executable "${appDir}/usr/@CMAKE_INSTALL_BINDIR@/$<TARGET_FILE_NAME:@target@>"
+                --desktop-file "${appDir}/usr/@CMAKE_INSTALL_DATADIR@/applications/@APP_BUNDLE_ID@.desktop"
+                --icon-file "${appDir}/usr/@CMAKE_INSTALL_DATADIR@/icons/hicolor/scalable/apps/@APP_BUNDLE_ID@.svg"
+                --output appimage
+            WORKING_DIRECTORY "${CPACK_TOPLEVEL_DIRECTORY}"
+            COMMAND_ERROR_IS_FATAL ANY
+        )
+        if(NOT EXISTS "${output}")
+            message(FATAL_ERROR "linuxdeploy did not produce ${output}")
+        endif()
+        set(CPACK_EXTERNAL_BUILT_PACKAGES "${output}")
+    ]])
+    string(CONFIGURE "${script}" script @ONLY)
+    file(GENERATE OUTPUT "${PROJECT_BINARY_DIR}/AppImage.cmake" CONTENT "${script}")
+endfunction()
 
 function(app_archive_symbols target)
     set(symbolDirectory "${PROJECT_BINARY_DIR}/symbols/$<CONFIG>")

@@ -31,8 +31,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y g++-14 autoconf autoconf-archive automake libtool pkg-config \
             '^libxcb.*-dev' libx11-xcb-dev libxrender-dev libxi-dev libxkbcommon-dev \
-            libxkbcommon-x11-dev libgl1-mesa-dev libegl1-mesa-dev
+            libxkbcommon-x11-dev libgl1-mesa-dev libegl1-mesa-dev libwayland-dev \
+            libfontconfig1-dev libdbus-1-dev patchelf
           echo "CXX=g++-14" >> "$GITHUB_ENV"
+
+      - name: Install pinned AppImage packaging tools
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p .cache/linuxdeploy
+          cd .cache/linuxdeploy
+          curl --fail --location --retry 3 --output linuxdeploy-x86_64.AppImage \
+            https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20251107-1/linuxdeploy-x86_64.AppImage
+          echo "c20cd71e3a4e3b80c3483cef793cda3f4e990aca14014d23c544ca3ce1270b4d  linuxdeploy-x86_64.AppImage" | sha256sum --check
+          chmod +x linuxdeploy-x86_64.AppImage
+          echo "$PWD" >> "$GITHUB_PATH"
 
       - name: Install macOS build dependencies
         if: runner.os == 'macOS'
@@ -63,7 +75,7 @@ jobs:
           path: |
             build/release/*.dmg
             build/release/*.zip
-            build/release/*.tar.gz
+            build/release/*.AppImage
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v7

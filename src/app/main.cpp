@@ -41,11 +41,8 @@ int main(int argc, char *argv[])
         QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
     const QDir logsDirectory(dataDirectory.filePath("logs"_L1));
     const app::LogSession logging(logsDirectory);
-    const QDir installedLicensesDirectory(QDir(QCoreApplication::applicationDirPath())
-            .filePath(QString::fromUtf8(APP_LICENSES_RELATIVE_TO_EXECUTABLE)));
-    const QDir licensesDirectory = installedLicensesDirectory.exists()
-        ? installedLicensesDirectory
-        : QDir(QString::fromUtf8(APP_DEV_LICENSES_DIRECTORY));
+    const QDir licensesDirectory(
+        QDir(QCoreApplication::applicationDirPath()).filePath("licenses"_L1));
 
     // Declared before the engine, so they outlive it: QML only holds non-owning references.
     const auto sketchDirectory = dataDirectory.filePath("sketches"_L1); // demo

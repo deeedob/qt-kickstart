@@ -125,7 +125,7 @@ the important part is keeping the wiring and ownership explicit.
 
 ```cpp
     const auto sketchDirectory
-    });
+        // demo:end\n    });
 ```
 
 :::
