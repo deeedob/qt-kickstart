@@ -70,7 +70,8 @@ void Notification::setPresentation(Presentation presentation)
     m_presentation = presentation;
     QPointer<Notification> guardedNotification(this);
     m_manager->presentationChanged(this, previous);
-    if (!guardedNotification || guardedNotification->isFinished())
+    auto *currentNotification = guardedNotification.data();
+    if (!currentNotification || currentNotification->isFinished())
         return;
     updateTimerEligibility();
     Q_EMIT presentationChanged();

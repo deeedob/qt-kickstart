@@ -110,9 +110,8 @@ Notification *Manager::post(const Options &options, QObject *context,
     } else {
         insertCard(notification);
     }
-    return guardedNotification && !guardedNotification->isFinished()
-        ? guardedNotification.data()
-        : nullptr;
+    auto *current = guardedNotification.data();
+    return current && !current->isFinished() ? current : nullptr;
 }
 
 Notification *Manager::postMessage(const QString &message)
@@ -201,7 +200,8 @@ void Manager::presentationChanged(Notification *notification, Presentation previ
         } else {
             std::erase(m_decisions, notification);
         }
-        if (!guardedNotification || guardedNotification->isFinished())
+        auto *currentNotification = guardedNotification.data();
+        if (!currentNotification || currentNotification->isFinished())
             return;
         insertCard(notification);
     } else if (notification->presentation() == Presentation::Decision) {
@@ -212,7 +212,8 @@ void Manager::presentationChanged(Notification *notification, Presentation previ
             endRemoveRows();
             Q_EMIT countChanged();
         }
-        if (!guardedNotification || guardedNotification->isFinished()) {
+        auto *currentNotification = guardedNotification.data();
+        if (!currentNotification || currentNotification->isFinished()) {
             updateTimerEligibility();
             return;
         }

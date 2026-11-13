@@ -73,7 +73,8 @@ void tst_Manager::postCallbackFinishesOnce()
     app::notify::Manager manager;
     QObject context;
     int calls = 0;
-    auto *notification = manager.post({ .actions = { { u"save"_s, u"Save"_s, true } } }, &context,
+    auto *notification = manager.post(
+        { .title = {}, .message = {}, .actions = { { u"save"_s, u"Save"_s, true } } }, &context,
         [&calls](app::notify::FinishReason reason, const QString &actionId) {
             ++calls;
             QCOMPARE(reason, app::notify::FinishReason::Action);
@@ -142,8 +143,9 @@ void tst_Manager::javascriptCallbackFollowsEngineLifetime()
         engine.globalObject().setProperty(u"context"_s, engine.newQObject(&context));
         const auto callback = engine.evaluate(
             u"(function(reason, actionId) { context.objectName = actionId; })"_s);
-        auto *notification = manager.post({ .actions = { { u"save"_s, u"Save"_s, true } } },
-            &context, callback);
+        auto *notification = manager.post(
+            { .title = {}, .message = {}, .actions = { { u"save"_s, u"Save"_s, true } } }, &context,
+            callback);
         QVERIFY(notification);
         notification->choose(u"save"_s);
         QCOMPARE(context.objectName(), u"save"_s);
@@ -203,8 +205,8 @@ void tst_Manager::keepsOverlappingMessages()
     app::notify::Manager manager;
     QObject context;
 
-    auto *first = manager.post({ .message = u"first"_s }, &context);
-    auto *second = manager.post({ .message = u"second"_s }, &context);
+    auto *first = manager.post({ .title = {}, .message = u"first"_s, .actions = {} }, &context);
+    auto *second = manager.post({ .title = {}, .message = u"second"_s, .actions = {} }, &context);
 
     QVERIFY(first);
     QVERIFY(second);
@@ -239,8 +241,8 @@ void tst_Manager::dismissPassiveHandlesDeletedMessages()
 {
     app::notify::Manager manager;
     QObject context;
-    auto *later = manager.post({ .message = u"later"_s }, &context);
-    auto *first = manager.post({ .message = u"first"_s }, &context);
+    auto *later = manager.post({ .title = {}, .message = u"later"_s, .actions = {} }, &context);
+    auto *first = manager.post({ .title = {}, .message = u"first"_s, .actions = {} }, &context);
     QPointer<app::notify::Notification> guardedLater(later);
     connect(first, &app::notify::Notification::finished, &manager,
         [later](app::notify::FinishReason, const QString &) {
@@ -278,7 +280,8 @@ void tst_Manager::finishesOnceBeforeNotifying()
 {
     app::notify::Manager manager;
     QObject context;
-    auto *notification = manager.post({ .message = u"finish"_s }, &context);
+    auto *notification = manager.post({ .title = {}, .message = u"finish"_s, .actions = {} },
+        &context);
     QVERIFY(notification);
     QPointer<app::notify::Notification> guardedNotification(notification);
 
@@ -301,7 +304,8 @@ void tst_Manager::cancelsWhenContextIsDestroyed()
 {
     app::notify::Manager manager;
     auto *context = new QObject;
-    auto *notification = manager.post({ .message = u"context"_s }, context);
+    auto *notification = manager.post({ .title = {}, .message = u"context"_s, .actions = {} },
+        context);
     QVERIFY(notification);
     QSignalSpy finished(notification, &app::notify::Notification::finished);
 
@@ -317,7 +321,8 @@ void tst_Manager::defersCancellationUntilContextDestructionCompletes()
 {
     app::notify::Manager manager;
     auto *context = new DestructionContext;
-    auto *notification = manager.post({ .message = u"context"_s }, context);
+    auto *notification = manager.post({ .title = {}, .message = u"context"_s, .actions = {} },
+        context);
     QVERIFY(notification);
     QSignalSpy finished(notification, &app::notify::Notification::finished);
     bool calledDuringDestruction = false;
@@ -335,8 +340,8 @@ void tst_Manager::cancelsAllRequestsOnShutdown()
 {
     app::notify::Manager manager;
     QObject context;
-    auto *first = manager.post({ .message = u"first"_s }, &context);
-    auto *second = manager.post({ .message = u"second"_s }, &context);
+    auto *first = manager.post({ .title = {}, .message = u"first"_s, .actions = {} }, &context);
+    auto *second = manager.post({ .title = {}, .message = u"second"_s, .actions = {} }, &context);
     QSignalSpy firstFinished(first, &app::notify::Notification::finished);
     QSignalSpy secondFinished(second, &app::notify::Notification::finished);
 
@@ -346,7 +351,8 @@ void tst_Manager::cancelsAllRequestsOnShutdown()
     QCOMPARE(firstFinished.size(), 1);
     QCOMPARE(secondFinished.size(), 1);
     QCOMPARE(manager.rowCount(), 0);
-    QVERIFY(manager.post({ .message = u"late"_s }, &context) == nullptr);
+    QVERIFY(manager.post({ .title = {}, .message = u"late"_s, .actions = {} }, &context)
+        == nullptr);
 }
 
 void tst_Manager::passiveTimeoutStartsWhenPresented()
@@ -424,7 +430,7 @@ void tst_Manager::serializesDecisionRequests()
     options.presentation = app::notify::Presentation::Decision;
     auto *first = manager.post(options, &context);
     auto *second = manager.post(options, &context);
-    auto *card = manager.post({ .message = u"card"_s }, &context);
+    auto *card = manager.post({ .title = {}, .message = u"card"_s, .actions = {} }, &context);
 
     QCOMPARE(manager.currentDecision(), first);
     QCOMPARE(manager.rowCount(), 1);
