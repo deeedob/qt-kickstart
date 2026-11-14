@@ -64,10 +64,17 @@ jobs:
           key: release-vcpkg-${{ matrix.os }}-${{ steps.vcpkg.outputs.commit }}-${{ hashFiles('vcpkg.json', 'cmake/vcpkg/triplets/**/*.cmake') }}
           restore-keys: release-vcpkg-${{ matrix.os }}-
 
-      - name: Configure, build, test and package
-        run: |
-          cmake --preset release -DAPP_USE_VCPKG_QT=ON
-          cmake --workflow --preset release
+      - name: Configure Qt from vcpkg
+        id: configure
+        run: cmake --preset release -DAPP_USE_VCPKG_QT=ON
+
+      - name: Build, test and package
+        id: build
+        run: cmake --workflow --preset release
+
+      - name: Print vcpkg error logs
+        if: failure() && (steps.configure.outcome == 'failure' || steps.build.outcome == 'failure')
+        run: python cmake/vcpkg/print_error_logs.py build/vcpkg-buildtrees
 
       - uses: actions/upload-artifact@v7
         with:

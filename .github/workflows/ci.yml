@@ -60,10 +60,16 @@ jobs:
           restore-keys: vcpkg-${{ matrix.os }}-
 
       - name: Configure, build and test
+        id: build
+        shell: bash
         run: |
           cmake --preset release
           cmake --build --preset release
           ctest --preset release
+
+      - name: Print vcpkg error logs
+        if: failure() && steps.build.outcome == 'failure'
+        run: python cmake/vcpkg/print_error_logs.py build/vcpkg-buildtrees
 
       - name: Format, qmllint and REUSE
         if: runner.os == 'Linux'
