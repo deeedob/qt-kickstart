@@ -56,7 +56,7 @@ class TemplateSetupTest(unittest.TestCase):
         self.assertEqual(plan.display_name, "River Studio")
 
     def test_prefix_includes_showcase(self):
-        showcase = self.copy("tools/showcase/showcase.cpp")
+        showcase = self.copy("tests/manual/showcase/showcase.cpp")
         self.copy("AGENTS.md")
         setup.rename_prefix("Nova")
         text = showcase.read_text()
@@ -67,10 +67,12 @@ class TemplateSetupTest(unittest.TestCase):
         cmake = self.copy("src/app/CMakeLists.txt")
         self.copy("vcpkg.json")
         self.copy("tests/canvas/tst_SketchTitle.qml")
+        self.copy("tests/manual/showcase/showcase.cpp")
         setup.remove_demo()
         self.assertNotIn("app_canvas", cmake.read_text())
         self.assertNotIn("app_sketchbook", cmake.read_text())
         self.assertFalse((self.root / "tests/canvas").exists())
+        self.assertFalse((self.root / "tests/manual/showcase").exists())
 
     def test_demo_removal_strips_sketchbook_error_state(self):
         main = self.copy("src/app/Main.qml")

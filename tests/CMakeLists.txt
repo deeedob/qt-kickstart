@@ -31,3 +31,4 @@ add_subdirectory(sketchbook) # demo
 add_subdirectory(controls)
 
 add_subdirectory(manual/notify)
+add_subdirectory(manual/showcase) # demo

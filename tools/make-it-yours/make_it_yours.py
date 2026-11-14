@@ -21,7 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 
-DEMO_FOLDERS = ["libs/shapes", "src/canvas", "src/sketchbook", "tests/canvas", "tests/sketchbook", "tools/showcase"]
+DEMO_FOLDERS = ["libs/shapes", "src/canvas", "src/sketchbook", "tests/canvas", "tests/sketchbook", "tests/manual/showcase"]
 DEMO_DEPENDENCIES = ["glaze"]
 GUIDE_PATHS = ["docs", ".github/workflows/docs.yml"]
 SOURCE_SUFFIXES = {".cpp", ".hpp", ".h", ".qml", ".js", ".cmake", ".in"}
