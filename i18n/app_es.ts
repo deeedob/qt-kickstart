@@ -222,7 +222,7 @@
 <context>
     <name>Card</name>
     <message>
-        <location filename="../src/notify/Card.qml" line="146"/>
+        <location filename="../src/notify/Card.qml" line="148"/>
         <source>Dismiss notification</source>
         <translation>Cerrar notificación</translation>
     </message>
@@ -300,47 +300,24 @@
 <context>
     <name>SeverityBadge</name>
     <message>
-        <location filename="../src/notify/SeverityBadge.qml" line="37"/>
+        <location filename="../src/notify/SeverityBadge.qml" line="46"/>
         <source>Success</source>
-        <translation type="unfinished">Éxito</translation>
+        <translation>Éxito</translation>
     </message>
     <message>
-        <location filename="../src/notify/SeverityBadge.qml" line="38"/>
+        <location filename="../src/notify/SeverityBadge.qml" line="48"/>
         <source>Warning</source>
-        <translation type="unfinished">Advertencia</translation>
+        <translation>Advertencia</translation>
     </message>
     <message>
-        <location filename="../src/notify/SeverityBadge.qml" line="39"/>
+        <location filename="../src/notify/SeverityBadge.qml" line="50"/>
         <source>Error</source>
-        <translation type="unfinished">Error</translation>
+        <translation>Error</translation>
     </message>
     <message>
-        <location filename="../src/notify/SeverityBadge.qml" line="40"/>
+        <location filename="../src/notify/SeverityBadge.qml" line="52"/>
         <source>Information</source>
-        <translation type="unfinished">Información</translation>
-    </message>
-</context>
-<context>
-    <name>app::sketchbook::SketchStorage</name>
-    <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="224"/>
-        <source>Sketch was deleted</source>
-        <translation>El boceto se eliminó</translation>
-    </message>
-    <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="239"/>
-        <source>Sketch contains an invalid stroke</source>
-        <translation>El boceto contiene un trazo no válido</translation>
-    </message>
-    <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="261"/>
-        <source>Cannot serialize sketch</source>
-        <translation>No se puede serializar el boceto</translation>
-    </message>
-    <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="263"/>
-        <source>Cannot create the sketch directory</source>
-        <translation>No se puede crear la carpeta de bocetos</translation>
+        <translation>Información</translation>
     </message>
 </context>
 <context>
@@ -389,114 +366,155 @@
     <message>
         <location filename="../src/sketchbook/SketchbookPage.qml" line="115"/>
         <source>Rename sketch</source>
-        <translation type="unfinished">Renombrar boceto</translation>
+        <translation>Renombrar boceto</translation>
+    </message>
+</context>
+<context>
+    <name>app::AppController</name>
+    <message>
+        <location filename="../src/app/AppController.cpp" line="94"/>
+        <source>Language unavailable</source>
+        <translation>Idioma no disponible</translation>
+    </message>
+    <message>
+        <location filename="../src/app/AppController.cpp" line="95"/>
+        <source>Could not load the translation for language %1.</source>
+        <translation>No se pudo cargar la traducción del idioma %1.</translation>
+    </message>
+</context>
+<context>
+    <name>app::sketchbook::SketchStorage</name>
+    <message>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="224"/>
+        <source>Sketch was deleted</source>
+        <translation>El boceto se eliminó</translation>
+    </message>
+    <message>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="239"/>
+        <source>Sketch contains an invalid stroke</source>
+        <translation>El boceto contiene un trazo no válido</translation>
+    </message>
+    <message>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="261"/>
+        <source>Cannot serialize sketch</source>
+        <translation>No se puede serializar el boceto</translation>
+    </message>
+    <message>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="263"/>
+        <source>Cannot create the sketch directory</source>
+        <translation>No se puede crear la carpeta de bocetos</translation>
     </message>
 </context>
 <context>
     <name>app::sketchbook::SketchbookViewModel</name>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="52"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="53"/>
         <source>Sketch %1</source>
         <translation>Dibujo %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="283"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="78"/>
+        <source>Sketch name cannot be empty</source>
+        <translation>El nombre del boceto no puede estar vacío</translation>
+    </message>
+    <message>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="298"/>
         <source>Rename sketch</source>
         <translation>Renombrar boceto</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="311"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="326"/>
         <source>Retry</source>
         <translation>Reintentar</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="314"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="329"/>
         <source>Discard</source>
         <translation>Descartar</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="315"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="330"/>
         <source>Keep editing</source>
         <translation>Seguir editando</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="158"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="173"/>
         <source>Could not open sketch: %1</source>
         <translation>No se pudo abrir el boceto: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="210"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="225"/>
         <source>Could not rename sketch: %1</source>
         <translation>No se pudo renombrar el boceto: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="219"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="234"/>
         <source>Could not duplicate sketch: %1</source>
         <translation>No se pudo duplicar el boceto: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="230"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="245"/>
         <source>Could not delete sketch: %1</source>
         <translation>No se pudo eliminar el boceto: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="207"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="222"/>
         <source>Could not save sketch: %1</source>
         <translation>No se pudo guardar el boceto: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="26"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="27"/>
         <source>Redone</source>
         <translation>Rehecho</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="26"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="27"/>
         <source>Undone</source>
         <translation>Deshecho</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="194"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="209"/>
         <source>Duplicated %1</source>
         <translation>%1 duplicado</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="236"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="251"/>
         <source>Deleted %1</source>
         <translation>%1 eliminado</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="280"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="295"/>
         <source>Open sketch</source>
         <translation>Abrir boceto</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="286"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="301"/>
         <source>Duplicate sketch</source>
         <translation>Duplicar boceto</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="289"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="304"/>
         <source>Save sketch</source>
         <translation>Guardar boceto</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="292"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="307"/>
         <source>Delete sketch</source>
         <translation>Eliminar boceto</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="297"/>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="303"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="312"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="318"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="318"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="333"/>
         <source>Could not save sketch</source>
         <translation>No se pudo guardar el boceto</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="374"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="391"/>
         <source> copy</source>
         <translation> copia</translation>
     </message>

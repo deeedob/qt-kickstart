@@ -13,5 +13,6 @@ app_add_qt_test(tst_AppController
     LIBRARIES
         app_ui
         app_uiplugin
+        app_notify
         Qt::Gui
 )

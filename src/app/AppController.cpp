@@ -1,4 +1,7 @@
 #include "AppController.hpp"
+#include <Manager.hpp>
+#include <Namespace.hpp>
+#include <Notification.hpp>
 
 #include <BuildInfo.hpp>
 
@@ -40,13 +43,15 @@ namespace {
 
 } // namespace
 
-AppController::AppController(Directories directories, QSettings &settings, QObject *parent)
+AppController::AppController(Directories directories, QSettings &settings,
+    notify::Manager &notifications, QObject *parent)
     : QObject(parent)
     , m_directories(std::move(directories))
     , m_darkTheme(settings.contains("theme/dark"_L1)
               ? settings.value("theme/dark"_L1).toBool()
               : systemUsesDarkTheme())
     , m_settings(settings)
+    , m_notifications(notifications)
 {
     const auto systemLanguage = QLocale::system().language();
     setLanguage(systemLanguage == QLocale::German ? "de"_L1
@@ -86,6 +91,12 @@ void AppController::setLanguage(const QString &language)
     auto translator = std::make_unique<QTranslator>();
     if (!translator->load(":/i18n/app_%1.qm"_L1.arg(language))) {
         qCWarning(lcApp) << "No translation for language" << language;
+        notify::Options options;
+        options.title = tr("Language unavailable");
+        options.message = tr("Could not load the translation for language %1.").arg(language);
+        options.severity = notify::Severity::Error;
+        options.presentation = notify::Presentation::Persistent;
+        m_notifications.post(options, this);
         return;
     }
     if (m_translator)

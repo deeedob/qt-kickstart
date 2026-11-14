@@ -53,8 +53,7 @@ int main(int argc, char *argv[])
     app::sketchbook::SketchbookViewModel sketchbook(storage, canvas, notifications); // demo
     QSettings settings;
     app::AppController controller({ .logs = logsDirectory, .licenses = licensesDirectory },
-        settings);
-
+        settings, notifications);
     QQmlApplicationEngine engine;
     QObject::connect(&controller, &app::AppController::languageChanged, &engine,
         &QQmlEngine::retranslate);

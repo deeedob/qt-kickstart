@@ -2,6 +2,7 @@
 #include <BuildInfo.hpp>
 
 #include <QtCore/QMetaProperty>
+#include <QtCore/QRegularExpression>
 
 #include <QtCore/QDir>
 #include <QtCore/QLibraryInfo>
@@ -13,6 +14,8 @@
 #include <QtQml/QQmlComponent>
 #include <QtQml/QQmlEngine>
 #include <QtTest/QTest>
+#include <Manager.hpp>
+#include <Notification.hpp>
 
 using namespace Qt::StringLiterals;
 
@@ -42,7 +45,8 @@ private Q_SLOTS:
         QTemporaryDir dir;
         QSettings settings(dir.filePath("settings.ini"_L1), QSettings::IniFormat);
         settings.setValue("theme/dark"_L1, false);
-        app::AppController controller(directories(dir), settings);
+        app::notify::Manager notifications;
+        app::AppController controller(directories(dir), settings, notifications);
         QDesktopServices::setUrlHandler("file"_L1, this, "recordOpenedUrl");
 
         controller.openLicensesDirectory();
@@ -57,7 +61,8 @@ private Q_SLOTS:
         QVERIFY(appDirectories.logs.mkpath("."_L1));
         QSettings settings(dir.filePath("settings.ini"_L1), QSettings::IniFormat);
         settings.setValue("theme/dark"_L1, false);
-        app::AppController controller(appDirectories, settings);
+        app::notify::Manager notifications;
+        app::AppController controller(appDirectories, settings, notifications);
         QDesktopServices::setUrlHandler("file"_L1, this, "recordOpenedUrl");
 
         controller.openLogDirectory();
@@ -65,12 +70,36 @@ private Q_SLOTS:
         QCOMPARE(m_openedUrl, QUrl::fromLocalFile(appDirectories.logs.absolutePath()));
     }
 
+    void missingTranslationIsLoggedAndRetained()
+    {
+        QTemporaryDir dir;
+        QSettings settings(dir.filePath("settings.ini"_L1), QSettings::IniFormat);
+        app::notify::Manager notifications;
+        app::AppController controller(directories(dir), settings, notifications);
+        const auto initialLanguage = controller.language();
+        QTest::ignoreMessage(QtWarningMsg,
+            QRegularExpression(u"No translation for language.*unsupported"_s));
+
+        controller.setLanguage("unsupported"_L1);
+
+        QCOMPARE(controller.language(), initialLanguage);
+        QCOMPARE(notifications.count(), 1);
+        auto *notification = notifications
+                                 .data(notifications.index(0),
+                                     app::notify::Manager::NotificationRole)
+                                 .value<app::notify::Notification *>();
+        QVERIFY(notification);
+        QCOMPARE(notification->severity(), app::notify::Severity::Error);
+        QCOMPARE(notification->presentation(), app::notify::Presentation::Persistent);
+    }
+
     void persistsTheThemeChoice()
     {
         QTemporaryDir dir;
         QSettings settings(dir.filePath("settings.ini"_L1), QSettings::IniFormat);
         settings.setValue("theme/dark"_L1, false);
-        app::AppController controller(directories(dir), settings);
+        app::notify::Manager notifications;
+        app::AppController controller(directories(dir), settings, notifications);
 
         controller.setDarkTheme(true);
 
@@ -82,7 +111,8 @@ private Q_SLOTS:
     {
         QTemporaryDir dir;
         QSettings settings(dir.filePath("settings.ini"_L1), QSettings::IniFormat);
-        app::AppController controller(directories(dir), settings);
+        app::notify::Manager notifications;
+        app::AppController controller(directories(dir), settings, notifications);
 
         const auto details = controller.buildDetails();
         QVERIFY(!details.gitSha().isEmpty());
@@ -112,7 +142,8 @@ private Q_SLOTS:
     {
         QTemporaryDir dir;
         QSettings settings(dir.filePath("settings.ini"_L1), QSettings::IniFormat);
-        app::AppController controller(directories(dir), settings);
+        app::notify::Manager notifications;
+        app::AppController controller(directories(dir), settings, notifications);
         QQmlEngine engine;
         engine.setExternalSingletonInstance("App"_L1, "AppController"_L1, &controller);
         QQmlComponent component(&engine);

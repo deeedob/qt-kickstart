@@ -222,7 +222,7 @@
 <context>
     <name>Card</name>
     <message>
-        <location filename="../src/notify/Card.qml" line="146"/>
+        <location filename="../src/notify/Card.qml" line="148"/>
         <source>Dismiss notification</source>
         <translation>Benachrichtigung schließen</translation>
     </message>
@@ -300,47 +300,24 @@
 <context>
     <name>SeverityBadge</name>
     <message>
-        <location filename="../src/notify/SeverityBadge.qml" line="37"/>
+        <location filename="../src/notify/SeverityBadge.qml" line="46"/>
         <source>Success</source>
-        <translation type="unfinished">Erfolg</translation>
+        <translation>Erfolg</translation>
     </message>
     <message>
-        <location filename="../src/notify/SeverityBadge.qml" line="38"/>
+        <location filename="../src/notify/SeverityBadge.qml" line="48"/>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
-        <location filename="../src/notify/SeverityBadge.qml" line="39"/>
+        <location filename="../src/notify/SeverityBadge.qml" line="50"/>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../src/notify/SeverityBadge.qml" line="40"/>
+        <location filename="../src/notify/SeverityBadge.qml" line="52"/>
         <source>Information</source>
-        <translation type="unfinished">Information</translation>
-    </message>
-</context>
-<context>
-    <name>app::sketchbook::SketchStorage</name>
-    <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="224"/>
-        <source>Sketch was deleted</source>
-        <translation>Die Skizze wurde gelöscht</translation>
-    </message>
-    <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="239"/>
-        <source>Sketch contains an invalid stroke</source>
-        <translation>Die Skizze enthält einen ungültigen Strich</translation>
-    </message>
-    <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="261"/>
-        <source>Cannot serialize sketch</source>
-        <translation>Die Skizze kann nicht serialisiert werden</translation>
-    </message>
-    <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="263"/>
-        <source>Cannot create the sketch directory</source>
-        <translation>Der Skizzenordner kann nicht erstellt werden</translation>
+        <translation>Information</translation>
     </message>
 </context>
 <context>
@@ -389,114 +366,155 @@
     <message>
         <location filename="../src/sketchbook/SketchbookPage.qml" line="115"/>
         <source>Rename sketch</source>
-        <translation type="unfinished">Skizze umbenennen</translation>
+        <translation>Skizze umbenennen</translation>
+    </message>
+</context>
+<context>
+    <name>app::AppController</name>
+    <message>
+        <location filename="../src/app/AppController.cpp" line="94"/>
+        <source>Language unavailable</source>
+        <translation>Sprache nicht verfügbar</translation>
+    </message>
+    <message>
+        <location filename="../src/app/AppController.cpp" line="95"/>
+        <source>Could not load the translation for language %1.</source>
+        <translation>Die Übersetzung für die Sprache %1 konnte nicht geladen werden.</translation>
+    </message>
+</context>
+<context>
+    <name>app::sketchbook::SketchStorage</name>
+    <message>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="224"/>
+        <source>Sketch was deleted</source>
+        <translation>Die Skizze wurde gelöscht</translation>
+    </message>
+    <message>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="239"/>
+        <source>Sketch contains an invalid stroke</source>
+        <translation>Die Skizze enthält einen ungültigen Strich</translation>
+    </message>
+    <message>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="261"/>
+        <source>Cannot serialize sketch</source>
+        <translation>Die Skizze kann nicht serialisiert werden</translation>
+    </message>
+    <message>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="263"/>
+        <source>Cannot create the sketch directory</source>
+        <translation>Der Skizzenordner kann nicht erstellt werden</translation>
     </message>
 </context>
 <context>
     <name>app::sketchbook::SketchbookViewModel</name>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="52"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="53"/>
         <source>Sketch %1</source>
         <translation>Skizze %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="283"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="78"/>
+        <source>Sketch name cannot be empty</source>
+        <translation>Der Skizzenname darf nicht leer sein</translation>
+    </message>
+    <message>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="298"/>
         <source>Rename sketch</source>
         <translation>Skizze umbenennen</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="311"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="326"/>
         <source>Retry</source>
         <translation>Erneut versuchen</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="314"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="329"/>
         <source>Discard</source>
         <translation>Verwerfen</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="315"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="330"/>
         <source>Keep editing</source>
         <translation>Weiter bearbeiten</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="158"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="173"/>
         <source>Could not open sketch: %1</source>
         <translation>Skizze konnte nicht geöffnet werden: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="210"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="225"/>
         <source>Could not rename sketch: %1</source>
         <translation>Skizze konnte nicht umbenannt werden: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="219"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="234"/>
         <source>Could not duplicate sketch: %1</source>
         <translation>Skizze konnte nicht dupliziert werden: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="230"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="245"/>
         <source>Could not delete sketch: %1</source>
         <translation>Skizze konnte nicht gelöscht werden: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="207"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="222"/>
         <source>Could not save sketch: %1</source>
         <translation>Skizze konnte nicht gespeichert werden: %1</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="26"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="27"/>
         <source>Redone</source>
         <translation>Wiederhergestellt</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="26"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="27"/>
         <source>Undone</source>
         <translation>Rückgängig gemacht</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="194"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="209"/>
         <source>Duplicated %1</source>
         <translation>%1 dupliziert</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="236"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="251"/>
         <source>Deleted %1</source>
         <translation>%1 gelöscht</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="280"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="295"/>
         <source>Open sketch</source>
         <translation>Skizze öffnen</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="286"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="301"/>
         <source>Duplicate sketch</source>
         <translation>Skizze duplizieren</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="289"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="304"/>
         <source>Save sketch</source>
         <translation>Skizze speichern</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="292"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="307"/>
         <source>Delete sketch</source>
         <translation>Skizze löschen</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="297"/>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="303"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="312"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="318"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="318"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="333"/>
         <source>Could not save sketch</source>
         <translation>Skizze konnte nicht gespeichert werden</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="374"/>
+        <location filename="../src/sketchbook/SketchbookViewModel.cpp" line="391"/>
         <source> copy</source>
         <translation> Kopie</translation>
     </message>

@@ -68,11 +68,12 @@ int main(int argc, char **argv)
         return 1;
     QSettings settings(temporary.filePath("settings.ini"_L1), QSettings::IniFormat);
     settings.setValue("theme/dark"_L1, false);
-    app::AppController controller({ QDir(temporary.path()), QDir(temporary.path()) }, settings);
+    app::notify::Manager notifications;
+    app::AppController controller({ QDir(temporary.path()), QDir(temporary.path()) }, settings,
+        notifications);
     controller.setLanguage("en"_L1);
     app::sketchbook::SketchStorage storage(temporary.filePath("sketches"_L1));
     app::canvas::CanvasStore canvas;
-    app::notify::Manager notifications;
     app::sketchbook::SketchbookViewModel sketchbook(storage, canvas, notifications);
     sketchbook.create();
     sketchbook.renameOpen(u"Ideas"_s);

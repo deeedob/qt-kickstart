@@ -90,6 +90,30 @@ private Q_SLOTS:
         QCOMPARE(data(viewModel, 0, SketchListModel::NameRole), "New"_L1);
     }
 
+    void blankRenameIsReported()
+    {
+        QTemporaryDir dir;
+        SketchStorage storage(dir.path());
+        QSignalSpy saved(&storage, &SketchStorage::mutationFinished);
+        storage.save("valid"_L1, { .name = "Valid", .strokes = {}, .page = {} });
+        QTRY_COMPARE(saved.count(), 1);
+        CanvasStore canvas;
+        app::notify::Manager notifications;
+        SketchbookViewModel viewModel(storage, canvas, notifications);
+        QTRY_VERIFY(viewModel.initialized());
+
+        QTest::ignoreMessage(QtWarningMsg,
+            QRegularExpression(u".*Rename sketch failed for Valid.*name cannot be empty.*"_s));
+        viewModel.rename(0, " \t "_L1);
+
+        QCOMPARE(notifications.count(), 1);
+        const auto *notice = qvariant_cast<app::notify::Notification *>(
+            notifications.data(notifications.index(0), app::notify::Manager::NotificationRole));
+        QVERIFY(notice);
+        QCOMPARE(notice->title(), "Rename sketch"_L1);
+        QVERIFY(notice->message().contains("name cannot be empty"_L1));
+    }
+
     void createAddsAndOpensAnEmptySketch()
     {
         QTemporaryDir dir;
@@ -247,7 +271,6 @@ private Q_SLOTS:
         viewModel.create();
 
         viewModel.rename(0, "  Garden  "_L1);
-        viewModel.rename(0, "   "_L1);
 
         QCOMPARE(data(viewModel, 0, SketchListModel::NameRole), "Garden"_L1);
         QCOMPARE(viewModel.openName(), "Garden"_L1);

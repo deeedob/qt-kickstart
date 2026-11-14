@@ -71,10 +71,15 @@ void SketchbookViewModel::open(int row)
 void SketchbookViewModel::rename(int row, const QString &name)
 {
     const auto trimmed = name.trimmed();
-    if (row < 0 || row >= m_model.rowCount() || trimmed.isEmpty())
+    if (row < 0 || row >= m_model.rowCount())
         return;
+    if (trimmed.isEmpty()) {
+        reportError(Operation::Rename, m_model.entry(row).name, tr("Sketch name cannot be empty"),
+            false);
+        return;
+    }
+    const auto id = m_model.entry(row).id;
     auto entry = m_model.entry(row);
-    const auto id = entry.id;
     if (!m_pendingRenames.contains(id))
         m_pendingRenames.insert(id, entry.name);
     entry.name = trimmed;

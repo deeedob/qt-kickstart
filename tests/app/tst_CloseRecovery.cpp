@@ -48,7 +48,7 @@ struct MainFixture
     QSettings settings{ directory.filePath("settings.ini"_L1), QSettings::IniFormat };
     app::AppController controller{
         { .logs = QDir(directory.filePath("logs"_L1)), .licenses = QDir(directory.path()) },
-        settings
+        settings, notifications
     };
     QQmlApplicationEngine engine;
     QQuickWindow *window = nullptr;
