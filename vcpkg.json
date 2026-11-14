@@ -48,6 +48,6 @@
     }
   },
   "configuration": {
-    "overlay-triplets": ["cmake/vcpkg-triplets"]
+    "overlay-triplets": ["cmake/vcpkg/triplets"]
   }
 }

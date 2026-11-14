@@ -56,7 +56,7 @@ jobs:
       - uses: actions/cache@v6
         with:
           path: .vcpkg-cache
-          key: vcpkg-${{ matrix.os }}-${{ steps.vcpkg.outputs.commit }}-${{ hashFiles('vcpkg.json', 'cmake/vcpkg-triplets/**/*.cmake') }}
+          key: vcpkg-${{ matrix.os }}-${{ steps.vcpkg.outputs.commit }}-${{ hashFiles('vcpkg.json', 'cmake/vcpkg/triplets/**/*.cmake') }}
           restore-keys: vcpkg-${{ matrix.os }}-
 
       - name: Configure, build and test

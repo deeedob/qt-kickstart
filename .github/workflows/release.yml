@@ -61,7 +61,7 @@ jobs:
       - uses: actions/cache/restore@v6
         with:
           path: .vcpkg-cache
-          key: release-vcpkg-${{ matrix.os }}-${{ steps.vcpkg.outputs.commit }}-${{ hashFiles('vcpkg.json', 'cmake/vcpkg-triplets/**/*.cmake') }}
+          key: release-vcpkg-${{ matrix.os }}-${{ steps.vcpkg.outputs.commit }}-${{ hashFiles('vcpkg.json', 'cmake/vcpkg/triplets/**/*.cmake') }}
           restore-keys: release-vcpkg-${{ matrix.os }}-
 
       - name: Configure, build, test and package
@@ -89,4 +89,4 @@ jobs:
         if: always()
         with:
           path: .vcpkg-cache
-          key: release-vcpkg-${{ matrix.os }}-${{ steps.vcpkg.outputs.commit }}-${{ hashFiles('vcpkg.json', 'cmake/vcpkg-triplets/**/*.cmake') }}
+          key: release-vcpkg-${{ matrix.os }}-${{ steps.vcpkg.outputs.commit }}-${{ hashFiles('vcpkg.json', 'cmake/vcpkg/triplets/**/*.cmake') }}
