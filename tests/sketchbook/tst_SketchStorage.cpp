@@ -165,6 +165,31 @@ private Q_SLOTS:
         QVERIFY(entries.front().modified.isValid());
     }
 
+    void listReportsCorruptEntriesAndKeepsValidOnes()
+    {
+        QTemporaryDir dir;
+        QFile valid(QDir(dir.path()).filePath("valid.json"_L1));
+        QVERIFY(valid.open(QIODevice::WriteOnly));
+        valid.write(
+            R"({"name":"Valid","strokes":[],"page":{"width":0,"height":0,"background":"plain","spacing":24,"thickness":1}})");
+        valid.close();
+        QFile broken(QDir(dir.path()).filePath("broken.json"_L1));
+        QVERIFY(broken.open(QIODevice::WriteOnly));
+        broken.write("{ not json");
+        broken.close();
+        SketchStorage storage(dir.path());
+        QSignalSpy listed(&storage, &SketchStorage::listed);
+
+        QTest::ignoreMessage(QtWarningMsg, QRegularExpression(u".*Skipping.*broken.json.*"_s));
+        storage.list();
+
+        QTRY_COMPARE(listed.count(), 1);
+        const auto
+            entries = listed.front().at(0).value<std::vector<app::sketchbook::SketchEntry>>();
+        QCOMPARE(entries.size(), 1);
+        QCOMPARE(entries.front().id, "valid"_L1);
+    }
+
     void laterSavesWin()
     {
         QTemporaryDir dir;

@@ -321,24 +321,24 @@
     </message>
 </context>
 <context>
-    <name>SketchStorage</name>
+    <name>app::sketchbook::SketchStorage</name>
     <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="221"/>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="224"/>
         <source>Sketch was deleted</source>
         <translation>El boceto se eliminó</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="233"/>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="239"/>
         <source>Sketch contains an invalid stroke</source>
         <translation>El boceto contiene un trazo no válido</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="255"/>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="261"/>
         <source>Cannot serialize sketch</source>
         <translation>No se puede serializar el boceto</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="257"/>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="263"/>
         <source>Cannot create the sketch directory</source>
         <translation>No se puede crear la carpeta de bocetos</translation>
     </message>

@@ -1,6 +1,5 @@
 #include "SketchStorage.hpp"
 
-#include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -12,6 +11,7 @@
 #include <glaze/json.hpp>
 
 #include <algorithm>
+#include <expected>
 #include <filesystem>
 #include <optional>
 
@@ -52,17 +52,17 @@ public:
         const QDir dir(m_directory);
         for (const auto &info : dir.entryInfoList({ "*.json"_L1 }, QDir::Files, QDir::Time)) {
             const auto id = info.completeBaseName();
-            const auto [document, error] = read(id);
-            if (!error.isEmpty()) {
-                qCWarning(lcStorage) << "Skipping" << info.fileName() << error;
+            const auto document = read(id);
+            if (!document) {
+                qCWarning(lcStorage) << "Skipping" << info.fileName() << document.error();
                 continue;
             }
             ids.insert(id);
             entries.push_back({
                 .id = id,
-                .name = QString::fromStdString(document.name),
+                .name = QString::fromStdString(document->name),
                 .modified = info.lastModified(),
-                .strokeCount = static_cast<qsizetype>(document.strokes.size()),
+                .strokeCount = static_cast<qsizetype>(document->strokes.size()),
             });
         }
         for (auto it = m_states.cbegin(); it != m_states.cend(); ++it) {
@@ -83,10 +83,9 @@ public:
 
     void load(const QString &id, quint64 requestId)
     {
-        auto [document, error] = read(id);
-        post([storage = m_storage, id, requestId, result = std::move(document),
-                 failure = std::move(error)]() mutable {
-            Q_EMIT storage->loaded(id, requestId, std::move(result), std::move(failure));
+        post([storage = m_storage, id, requestId, result = read(id)]() mutable {
+            Q_EMIT storage->loaded(id, requestId, result ? std::move(*result) : SketchDocument{},
+                result ? QString{} : std::move(result.error()));
         });
     }
 
@@ -103,13 +102,13 @@ public:
             reportMutation(id, id, Mutation::Rename, revision, {}, false);
             return;
         }
-        auto [document, error] = read(id);
-        if (!error.isEmpty()) {
-            reportMutation(id, id, Mutation::Rename, revision, error, false);
+        auto document = read(id);
+        if (!document) {
+            reportMutation(id, id, Mutation::Rename, revision, document.error(), false);
             return;
         }
-        document.name = name.toStdString();
-        finishMutation(id, id, revision, Mutation::Rename, std::move(document));
+        document->name = name.toStdString();
+        finishMutation(id, id, revision, Mutation::Rename, std::move(*document));
     }
 
     void duplicate(const QString &sourceId, const QString &id, quint64 revision,
@@ -117,13 +116,13 @@ public:
     {
         auto &state = m_states[id];
         state.revision = revision;
-        auto [document, error] = read(sourceId);
-        if (!error.isEmpty()) {
-            reportMutation(id, sourceId, Mutation::Duplicate, revision, error, false);
+        auto document = read(sourceId);
+        if (!document) {
+            reportMutation(id, sourceId, Mutation::Duplicate, revision, document.error(), false);
             return;
         }
-        document.name = name.toStdString();
-        finishMutation(id, sourceId, revision, Mutation::Duplicate, std::move(document));
+        document->name = name.toStdString();
+        finishMutation(id, sourceId, revision, Mutation::Duplicate, std::move(*document));
     }
 
     void remove(const QString &id)
@@ -214,32 +213,31 @@ private:
         reportMutation(id, sourceId, mutation, revision, error, !error.isEmpty());
     }
 
-    [[nodiscard]] std::pair<SketchDocument, QString> read(const QString &id) const
+    [[nodiscard]] std::expected<SketchDocument, QString> read(const QString &id) const
     {
         const auto state = m_states.constFind(id);
         if (state != m_states.cend() && state->removed)
-            return { {}, QCoreApplication::translate("SketchStorage", "Sketch was deleted") };
+            return std::unexpected(SketchStorage::tr("Sketch was deleted"));
         if (state != m_states.cend() && state->failed)
-            return { *state->failed, {} };
+            return *state->failed;
         QFile file(filePath(id));
         if (!file.open(QIODevice::ReadOnly))
-            return { {}, file.errorString() };
-        const auto json = file.readAll().toStdString();
+            return std::unexpected(file.errorString());
+        const auto contents = file.readAll();
+        if (file.error() != QFileDevice::NoError)
+            return std::unexpected(file.errorString());
+        const auto json = contents.toStdString();
         ParsedSketchDocument parsed;
         if (const auto error = glz::read<glz::opts{ .error_on_missing_keys = true }>(parsed, json))
-            return { {}, QString::fromStdString(glz::format_error(error, json)) };
+            return std::unexpected(QString::fromStdString(glz::format_error(error, json)));
         if (std::ranges::any_of(parsed.strokes, [](const auto &stroke) { return !stroke; }))
-            return { {},
-                QCoreApplication::translate("SketchStorage", "Sketch contains an invalid stroke") };
+            return std::unexpected(SketchStorage::tr("Sketch contains an invalid stroke"));
         parsed.page.spacing = std::clamp(parsed.page.spacing, 8, 128);
         parsed.page.thickness = std::clamp(parsed.page.thickness, 1, 8);
-        return {
-            {
-             .name = std::move(parsed.name),
-             .strokes = { parsed.strokes.begin(), parsed.strokes.end() },
-             .page = parsed.page,
-             },
-            {},
+        return SketchDocument{
+            .name = std::move(parsed.name),
+            .strokes = { parsed.strokes.begin(), parsed.strokes.end() },
+            .page = parsed.page,
         };
     }
 
@@ -252,10 +250,9 @@ private:
         };
         const auto json = glz::write_json(document);
         if (!json)
-            return failed(QCoreApplication::translate("SketchStorage", "Cannot serialize sketch"));
+            return failed(SketchStorage::tr("Cannot serialize sketch"));
         if (!QDir().mkpath(QFileInfo(path).absolutePath()))
-            return failed(QCoreApplication::translate("SketchStorage",
-                "Cannot create the sketch directory"));
+            return failed(SketchStorage::tr("Cannot create the sketch directory"));
         QSaveFile file(path);
         if (!file.open(QIODevice::WriteOnly))
             return failed(file.errorString());

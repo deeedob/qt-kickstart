@@ -321,24 +321,24 @@
     </message>
 </context>
 <context>
-    <name>SketchStorage</name>
+    <name>app::sketchbook::SketchStorage</name>
     <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="221"/>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="224"/>
         <source>Sketch was deleted</source>
         <translation>Die Skizze wurde gelöscht</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="233"/>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="239"/>
         <source>Sketch contains an invalid stroke</source>
         <translation>Die Skizze enthält einen ungültigen Strich</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="255"/>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="261"/>
         <source>Cannot serialize sketch</source>
         <translation>Die Skizze kann nicht serialisiert werden</translation>
     </message>
     <message>
-        <location filename="../src/sketchbook/SketchStorage.cpp" line="257"/>
+        <location filename="../src/sketchbook/SketchStorage.cpp" line="263"/>
         <source>Cannot create the sketch directory</source>
         <translation>Der Skizzenordner kann nicht erstellt werden</translation>
     </message>
