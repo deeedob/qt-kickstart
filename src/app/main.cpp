@@ -4,10 +4,10 @@
 #include "BuildInfo.hpp"
 #include "LogSession.hpp"
 
-#include <CanvasStore.hpp>         // demo
-#include <Manager.hpp>
-#include <SketchStorage.hpp>       // demo
-#include <SketchbookViewModel.hpp> // demo
+#include <canvas/CanvasStore.hpp>         // demo
+#include <notify/Manager.hpp>
+#include <sketchbook/SketchStorage.hpp>       // demo
+#include <sketchbook/SketchbookViewModel.hpp> // demo
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>

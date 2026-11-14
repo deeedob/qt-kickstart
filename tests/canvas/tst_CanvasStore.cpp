@@ -1,4 +1,4 @@
-#include "CanvasStore.hpp"
+#include <canvas/CanvasStore.hpp>
 
 #include <QtCore/QMetaProperty>
 

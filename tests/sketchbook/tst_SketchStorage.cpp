@@ -1,4 +1,4 @@
-#include "SketchStorage.hpp"
+#include <sketchbook/SketchStorage.hpp>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>

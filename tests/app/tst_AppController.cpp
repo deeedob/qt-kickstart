@@ -1,5 +1,5 @@
-#include "AppController.hpp"
 #include <BuildInfo.hpp>
+#include <app/AppController.hpp>
 
 #include <QtCore/QMetaProperty>
 #include <QtCore/QRegularExpression>
@@ -14,8 +14,8 @@
 #include <QtQml/QQmlComponent>
 #include <QtQml/QQmlEngine>
 #include <QtTest/QTest>
-#include <Manager.hpp>
-#include <Notification.hpp>
+#include <notify/Manager.hpp>
+#include <notify/Notification.hpp>
 
 using namespace Qt::StringLiterals;
 

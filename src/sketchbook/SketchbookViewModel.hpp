@@ -3,8 +3,8 @@
 #include "SketchListModel.hpp"
 #include "SketchStorage.hpp"
 
-#include <CanvasStore.hpp>
-#include <Manager.hpp>
+#include <canvas/CanvasStore.hpp>
+#include <notify/Manager.hpp>
 
 #include <QtCore/QHash>
 #include <QtCore/QObject>

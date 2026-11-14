@@ -3,7 +3,7 @@ qt_add_library(app_support STATIC
     LogSession.cpp LogSession.hpp
 )
 app_add_build_info(app_support)
-target_include_directories(app_support PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(app_support PUBLIC "${PROJECT_SOURCE_DIR}/src")
 target_link_libraries(app_support
     PUBLIC Qt::Core Qt::Qml
     PRIVATE cpptrace::cpptrace
@@ -35,6 +35,7 @@ qt_add_qml_module(app_ui
     RESOURCES
         app.svg
 )
+target_include_directories(app_ui PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(app_ui
     PUBLIC app_support Qt::Quick
     PRIVATE app_controls

@@ -1,7 +1,7 @@
 #include "AppController.hpp"
-#include <Manager.hpp>
-#include <Namespace.hpp>
-#include <Notification.hpp>
+#include <notify/Manager.hpp>
+#include <notify/Namespace.hpp>
+#include <notify/Notification.hpp>
 
 #include <BuildInfo.hpp>
 

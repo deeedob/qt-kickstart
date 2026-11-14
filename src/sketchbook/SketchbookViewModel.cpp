@@ -1,8 +1,9 @@
 #include "SketchbookViewModel.hpp"
 
+#include <notify/Notification.hpp>
+
 #include <QtCore/QLoggingCategory>
 #include <QtCore/QUuid>
-#include <Notification.hpp>
 
 using namespace Qt::StringLiterals;
 

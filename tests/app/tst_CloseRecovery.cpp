@@ -1,9 +1,9 @@
-#include "AppController.hpp"
-#include "SketchStorage.hpp"
-#include "SketchbookViewModel.hpp"
+#include <app/AppController.hpp>
+#include <sketchbook/SketchStorage.hpp>
+#include <sketchbook/SketchbookViewModel.hpp>
 
-#include <CanvasStore.hpp>
-#include <Manager.hpp>
+#include <canvas/CanvasStore.hpp>
+#include <notify/Manager.hpp>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -18,7 +18,7 @@
 #include <QtTest/QSignalSpy>
 #include <QtTest/QTest>
 
-#include <Notification.hpp>
+#include <notify/Notification.hpp>
 
 using namespace Qt::StringLiterals;
 using app::canvas::CanvasStore;

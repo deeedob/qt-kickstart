@@ -12,7 +12,10 @@ qt_add_qml_module(app_canvas
         Sketch.hpp
         StrokeItem.cpp StrokeItem.hpp
 )
-target_include_directories(app_canvas PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(app_canvas
+    PUBLIC "${PROJECT_SOURCE_DIR}/src"
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+)
 target_link_libraries(app_canvas
     PUBLIC Qt::Quick shapes::shapes
     PRIVATE app_controls

@@ -1,4 +1,4 @@
-#include <Manager.hpp>
+#include <notify/Manager.hpp>
 
 #include <QtCore/QDir>
 #include <QtCore/QMetaEnum>

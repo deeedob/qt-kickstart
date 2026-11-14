@@ -1,9 +1,9 @@
-#include <AppController.hpp>
 #include <BuildInfo.hpp>
-#include <CanvasStore.hpp>
-#include <Manager.hpp>
-#include <SketchStorage.hpp>
-#include <SketchbookViewModel.hpp>
+#include <app/AppController.hpp>
+#include <canvas/CanvasStore.hpp>
+#include <notify/Manager.hpp>
+#include <sketchbook/SketchStorage.hpp>
+#include <sketchbook/SketchbookViewModel.hpp>
 
 #include <QtCore/QDir>
 #include <QtCore/QSettings>

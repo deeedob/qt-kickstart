@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Sketch.hpp>
+#include <canvas/Sketch.hpp>
 
 #include <QtCore/QDateTime>
 #include <QtCore/QHash>

@@ -1,6 +1,6 @@
-#include "SketchbookViewModel.hpp"
+#include <sketchbook/SketchbookViewModel.hpp>
 
-#include <Manager.hpp>
+#include <notify/Manager.hpp>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>

@@ -10,7 +10,10 @@ qt_add_qml_module(app_sketchbook
         SketchListModel.cpp SketchListModel.hpp
         SketchStorage.cpp SketchStorage.hpp
 )
-target_include_directories(app_sketchbook PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(app_sketchbook
+    PUBLIC "${PROJECT_SOURCE_DIR}/src"
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+)
 target_link_libraries(app_sketchbook
     PUBLIC Qt::Qml Qt::QmlModels app_canvas app_notify
     PRIVATE glaze::glaze app_controls
