@@ -1,4 +1,4 @@
-#include <notify/Manager.hpp>
+#include <notify/NotificationManager.hpp>
 
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QMetaProperty>
@@ -10,6 +10,9 @@
 #include <QtTest/QAbstractItemModelTester>
 #include <QtTest/QSignalSpy>
 #include <QtTest/QTest>
+
+#include <array>
+#include <utility>
 
 using namespace Qt::StringLiterals;
 
@@ -26,7 +29,7 @@ public:
 
 } // namespace
 
-class tst_Manager : public QObject
+class tst_NotificationManager : public QObject
 {
     Q_OBJECT
 
@@ -39,6 +42,7 @@ private Q_SLOTS:
     void rejectedPostDoesNotCallCallback();
     void javascriptCallbackFollowsEngineLifetime();
     void severityIsConstant();
+    void severitySymbols();
     void enumTypesBelongToFeatureNamespace();
     void rejectsReentrantlyFinishedPost();
     void keepsOverlappingMessages();
@@ -63,21 +67,42 @@ private Q_SLOTS:
     void callsConnectedReceiverWithLiveContext();
 };
 
-void tst_Manager::init()
+void tst_NotificationManager::init()
 {
     QTest::failOnWarning();
 }
 
-void tst_Manager::postCallbackFinishesOnce()
+void tst_NotificationManager::severitySymbols()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
+    QObject context;
+    const std::array<std::pair<app::notify::Severity, QString>, 4> cases = {
+        {
+         { app::notify::Severity::Information, u"i"_s },
+         { app::notify::Severity::Success, u"✓"_s },
+         { app::notify::Severity::Warning, u"!"_s },
+         { app::notify::Severity::Error, u"×"_s },
+         }
+    };
+    for (const auto &[severity, symbol] : cases) {
+        app::notify::Options options;
+        options.severity = severity;
+        auto *notification = manager.post(options, &context);
+        QVERIFY(notification);
+        QCOMPARE(notification->property("severitySymbol").toString(), symbol);
+    }
+}
+
+void tst_NotificationManager::postCallbackFinishesOnce()
+{
+    app::notify::NotificationManager manager;
     QObject context;
     int calls = 0;
     auto *notification = manager.post(
         { .title = {}, .message = {}, .actions = { { u"save"_s, u"Save"_s, true } } }, &context,
-        [&calls](app::notify::FinishReason reason, const QString &actionId) {
+        [&calls](app::notify::Result reason, const QString &actionId) {
             ++calls;
-            QCOMPARE(reason, app::notify::FinishReason::Action);
+            QCOMPARE(reason, app::notify::Result::Action);
             QCOMPARE(actionId, u"save"_s);
         });
     QVERIFY(notification);
@@ -86,31 +111,32 @@ void tst_Manager::postCallbackFinishesOnce()
     QCOMPARE(calls, 1);
 }
 
-void tst_Manager::postCallbackHandlesSynchronousCompletion()
+void tst_NotificationManager::postCallbackHandlesSynchronousCompletion()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     int calls = 0;
-    connect(&manager, &app::notify::Manager::countChanged, &context, [&manager] {
+    connect(&manager, &app::notify::NotificationManager::countChanged, &context, [&manager] {
         manager.dismissPassive();
     });
     auto *notification = manager.post({}, &context,
-        [&calls](app::notify::FinishReason reason, const QString &actionId) {
+        [&calls](app::notify::Result reason, const QString &actionId) {
             ++calls;
-            QCOMPARE(reason, app::notify::FinishReason::Dismissed);
+            QCOMPARE(reason, app::notify::Result::Dismissed);
             QVERIFY(actionId.isEmpty());
         });
     QCOMPARE(notification, nullptr);
     QCOMPARE(calls, 1);
 }
 
-void tst_Manager::postCallbackFollowsContextLifetime()
+void tst_NotificationManager::postCallbackFollowsContextLifetime()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     auto *context = new QObject;
     int calls = 0;
-    auto *notification = manager.post({}, context,
-        [&calls](app::notify::FinishReason, const QString &) { ++calls; });
+    auto *notification = manager.post({}, context, [&calls](app::notify::Result, const QString &) {
+        ++calls;
+    });
     QVERIFY(notification);
     QSignalSpy finished(notification, &app::notify::Notification::finished);
     delete context;
@@ -118,12 +144,12 @@ void tst_Manager::postCallbackFollowsContextLifetime()
     QCOMPARE(calls, 0);
 }
 
-void tst_Manager::rejectedPostDoesNotCallCallback()
+void tst_NotificationManager::rejectedPostDoesNotCallCallback()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     int calls = 0;
-    const auto callback = [&calls](app::notify::FinishReason, const QString &) {
+    const auto callback = [&calls](app::notify::Result, const QString &) {
         ++calls;
     };
     QVERIFY(manager.post({}, nullptr, callback) == nullptr);
@@ -132,9 +158,9 @@ void tst_Manager::rejectedPostDoesNotCallCallback()
     QCOMPARE(calls, 0);
 }
 
-void tst_Manager::javascriptCallbackFollowsEngineLifetime()
+void tst_NotificationManager::javascriptCallbackFollowsEngineLifetime()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     app::notify::Notification *pending = nullptr;
     {
@@ -157,12 +183,14 @@ void tst_Manager::javascriptCallbackFollowsEngineLifetime()
     QCOMPARE(manager.count(), 0);
 }
 
-void tst_Manager::postsSimpleMessage()
+void tst_NotificationManager::postsSimpleMessage()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     manager.postMessage(u"Hello"_s);
     QCOMPARE(manager.count(), 1);
-    auto *message = manager.data(manager.index(0, 0), app::notify::Manager::NotificationRole)
+    auto *message = manager
+                        .data(manager.index(0, 0),
+                            app::notify::NotificationManager::NotificationRole)
                         .value<app::notify::Notification *>();
     QVERIFY(message);
     QCOMPARE(message->message(), u"Hello"_s);
@@ -170,14 +198,14 @@ void tst_Manager::postsSimpleMessage()
     QCOMPARE(manager.count(), 0);
 }
 
-void tst_Manager::enumTypesBelongToFeatureNamespace()
+void tst_NotificationManager::enumTypesBelongToFeatureNamespace()
 {
     QCOMPARE(QMetaType::fromType<app::notify::Severity>().name(), "app::notify::Severity");
     QCOMPARE(QMetaType::fromType<app::notify::Presentation>().name(), "app::notify::Presentation");
-    QCOMPARE(QMetaType::fromType<app::notify::FinishReason>().name(), "app::notify::FinishReason");
+    QCOMPARE(QMetaType::fromType<app::notify::Result>().name(), "app::notify::Result");
 }
 
-void tst_Manager::severityIsConstant()
+void tst_NotificationManager::severityIsConstant()
 {
     const auto &metaObject = app::notify::Notification::staticMetaObject;
     const int index = metaObject.indexOfProperty("severity");
@@ -185,14 +213,16 @@ void tst_Manager::severityIsConstant()
     QVERIFY(metaObject.property(index).isConstant());
 }
 
-void tst_Manager::rejectsReentrantlyFinishedPost()
+void tst_NotificationManager::rejectsReentrantlyFinishedPost()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
-    connect(&manager, &app::notify::Manager::countChanged, &manager, [&manager] {
+    connect(&manager, &app::notify::NotificationManager::countChanged, &manager, [&manager] {
         if (manager.count() == 0)
             return;
-        auto *message = manager.data(manager.index(0), app::notify::Manager::NotificationRole)
+        auto *message = manager
+                            .data(manager.index(0),
+                                app::notify::NotificationManager::NotificationRole)
                             .value<app::notify::Notification *>();
         message->dismiss();
     });
@@ -200,9 +230,9 @@ void tst_Manager::rejectsReentrantlyFinishedPost()
     QCOMPARE(manager.count(), 0);
 }
 
-void tst_Manager::keepsOverlappingMessages()
+void tst_NotificationManager::keepsOverlappingMessages()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
 
     auto *first = manager.post({ .title = {}, .message = u"first"_s, .actions = {} }, &context);
@@ -212,17 +242,17 @@ void tst_Manager::keepsOverlappingMessages()
     QVERIFY(second);
     QVERIFY(first->id() != second->id());
     QCOMPARE(manager.rowCount(), 2);
-    QCOMPARE(manager.data(manager.index(0), app::notify::Manager::NotificationRole)
+    QCOMPARE(manager.data(manager.index(0), app::notify::NotificationManager::NotificationRole)
                  .value<app::notify::Notification *>(),
         second);
-    QCOMPARE(manager.data(manager.index(1), app::notify::Manager::NotificationRole)
+    QCOMPARE(manager.data(manager.index(1), app::notify::NotificationManager::NotificationRole)
                  .value<app::notify::Notification *>(),
         first);
 }
 
-void tst_Manager::dismissesOnlyPassiveMessages()
+void tst_NotificationManager::dismissesOnlyPassiveMessages()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     app::notify::Options options;
     auto *passive = manager.post(options, &context);
@@ -237,15 +267,15 @@ void tst_Manager::dismissesOnlyPassiveMessages()
     QCOMPARE(manager.count(), 1);
 }
 
-void tst_Manager::dismissPassiveHandlesDeletedMessages()
+void tst_NotificationManager::dismissPassiveHandlesDeletedMessages()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     auto *later = manager.post({ .title = {}, .message = u"later"_s, .actions = {} }, &context);
     auto *first = manager.post({ .title = {}, .message = u"first"_s, .actions = {} }, &context);
     QPointer<app::notify::Notification> guardedLater(later);
     connect(first, &app::notify::Notification::finished, &manager,
-        [later](app::notify::FinishReason, const QString &) {
+        [later](app::notify::Result, const QString &) {
             later->dismiss();
             delete later;
         });
@@ -256,29 +286,29 @@ void tst_Manager::dismissPassiveHandlesDeletedMessages()
     QCOMPARE(manager.count(), 0);
 }
 
-void tst_Manager::newestMessagesFollowPriority()
+void tst_NotificationManager::newestMessagesFollowPriority()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     app::notify::Options options;
     auto *first = manager.post(options, &context);
     auto *second = manager.post(options, &context);
     options.severity = app::notify::Severity::Error;
     auto *urgent = manager.post(options, &context);
-    QCOMPARE(manager.data(manager.index(0), app::notify::Manager::NotificationRole)
+    QCOMPARE(manager.data(manager.index(0), app::notify::NotificationManager::NotificationRole)
                  .value<app::notify::Notification *>(),
         urgent);
-    QCOMPARE(manager.data(manager.index(1), app::notify::Manager::NotificationRole)
+    QCOMPARE(manager.data(manager.index(1), app::notify::NotificationManager::NotificationRole)
                  .value<app::notify::Notification *>(),
         second);
-    QCOMPARE(manager.data(manager.index(2), app::notify::Manager::NotificationRole)
+    QCOMPARE(manager.data(manager.index(2), app::notify::NotificationManager::NotificationRole)
                  .value<app::notify::Notification *>(),
         first);
 }
 
-void tst_Manager::finishesOnceBeforeNotifying()
+void tst_NotificationManager::finishesOnceBeforeNotifying()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     auto *notification = manager.post({ .title = {}, .message = u"finish"_s, .actions = {} },
         &context);
@@ -287,9 +317,7 @@ void tst_Manager::finishesOnceBeforeNotifying()
 
     QSignalSpy finished(notification, &app::notify::Notification::finished);
     connect(notification, &app::notify::Notification::finished, &manager,
-        [&manager](app::notify::FinishReason, const QString &) {
-            QCOMPARE(manager.rowCount(), 0);
-        });
+        [&manager](app::notify::Result, const QString &) { QCOMPARE(manager.rowCount(), 0); });
 
     notification->dismiss();
     notification->dismiss();
@@ -300,9 +328,9 @@ void tst_Manager::finishesOnceBeforeNotifying()
     QTRY_VERIFY(guardedNotification.isNull());
 }
 
-void tst_Manager::cancelsWhenContextIsDestroyed()
+void tst_NotificationManager::cancelsWhenContextIsDestroyed()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     auto *context = new QObject;
     auto *notification = manager.post({ .title = {}, .message = u"context"_s, .actions = {} },
         context);
@@ -312,14 +340,13 @@ void tst_Manager::cancelsWhenContextIsDestroyed()
     delete context;
 
     QTRY_COMPARE(finished.size(), 1);
-    QCOMPARE(finished.first().at(0).value<app::notify::FinishReason>(),
-        app::notify::FinishReason::Cancelled);
+    QCOMPARE(finished.first().at(0).value<app::notify::Result>(), app::notify::Result::Cancelled);
     QTRY_COMPARE(manager.rowCount(), 0);
 }
 
-void tst_Manager::defersCancellationUntilContextDestructionCompletes()
+void tst_NotificationManager::defersCancellationUntilContextDestructionCompletes()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     auto *context = new DestructionContext;
     auto *notification = manager.post({ .title = {}, .message = u"context"_s, .actions = {} },
         context);
@@ -336,9 +363,9 @@ void tst_Manager::defersCancellationUntilContextDestructionCompletes()
     QCOMPARE(manager.count(), 0);
 }
 
-void tst_Manager::cancelsAllRequestsOnShutdown()
+void tst_NotificationManager::cancelsAllRequestsOnShutdown()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     auto *first = manager.post({ .title = {}, .message = u"first"_s, .actions = {} }, &context);
     auto *second = manager.post({ .title = {}, .message = u"second"_s, .actions = {} }, &context);
@@ -355,9 +382,9 @@ void tst_Manager::cancelsAllRequestsOnShutdown()
         == nullptr);
 }
 
-void tst_Manager::passiveTimeoutStartsWhenPresented()
+void tst_NotificationManager::passiveTimeoutStartsWhenPresented()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     app::notify::Options options;
     options.message = u"timed"_s;
@@ -373,13 +400,12 @@ void tst_Manager::passiveTimeoutStartsWhenPresented()
 
     notification->setPresentationState(true, false);
     QTRY_COMPARE_WITH_TIMEOUT(finished.size(), 1, 1000);
-    QCOMPARE(finished.first().at(0).value<app::notify::FinishReason>(),
-        app::notify::FinishReason::Expired);
+    QCOMPARE(finished.first().at(0).value<app::notify::Result>(), app::notify::Result::Expired);
 }
 
-void tst_Manager::reportsIndependentTimerProgress()
+void tst_NotificationManager::reportsIndependentTimerProgress()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     app::notify::Options options;
     options.timeoutMs = 1000;
@@ -396,9 +422,9 @@ void tst_Manager::reportsIndependentTimerProgress()
     QCOMPARE(first->timeRemaining(), paused);
 }
 
-void tst_Manager::prioritizesWaitingCardsWithoutMovingVisibleCards()
+void tst_NotificationManager::prioritizesWaitingCardsWithoutMovingVisibleCards()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QAbstractItemModelTester modelTester(&manager,
         QAbstractItemModelTester::FailureReportingMode::QtTest);
     QObject context;
@@ -409,20 +435,20 @@ void tst_Manager::prioritizesWaitingCardsWithoutMovingVisibleCards()
     options.severity = app::notify::Severity::Error;
     auto *urgent = manager.post(options, &context);
 
-    QCOMPARE(manager.data(manager.index(0), app::notify::Manager::NotificationRole)
+    QCOMPARE(manager.data(manager.index(0), app::notify::NotificationManager::NotificationRole)
                  .value<app::notify::Notification *>(),
         urgent);
-    QCOMPARE(manager.data(manager.index(1), app::notify::Manager::NotificationRole)
+    QCOMPARE(manager.data(manager.index(1), app::notify::NotificationManager::NotificationRole)
                  .value<app::notify::Notification *>(),
         waiting);
-    QCOMPARE(manager.data(manager.index(2), app::notify::Manager::NotificationRole)
+    QCOMPARE(manager.data(manager.index(2), app::notify::NotificationManager::NotificationRole)
                  .value<app::notify::Notification *>(),
         visible);
 }
 
-void tst_Manager::serializesDecisionRequests()
+void tst_NotificationManager::serializesDecisionRequests()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QAbstractItemModelTester modelTester(&manager,
         QAbstractItemModelTester::FailureReportingMode::QtTest);
     QObject context;
@@ -434,30 +460,30 @@ void tst_Manager::serializesDecisionRequests()
 
     QCOMPARE(manager.currentDecision(), first);
     QCOMPARE(manager.rowCount(), 1);
-    QSignalSpy decisionChanges(&manager, &app::notify::Manager::currentDecisionChanged);
+    QSignalSpy decisionChanges(&manager, &app::notify::NotificationManager::currentDecisionChanged);
 
     first->dismiss();
 
     QCOMPARE(decisionChanges.size(), 1);
     QCOMPARE(manager.currentDecision(), second);
     QCOMPARE(manager.rowCount(), 1);
-    QCOMPARE(manager.data(manager.index(0), app::notify::Manager::NotificationRole)
+    QCOMPARE(manager.data(manager.index(0), app::notify::NotificationManager::NotificationRole)
                  .value<app::notify::Notification *>(),
         card);
 }
 
-void tst_Manager::handlesCompletionDuringPresentationChange()
+void tst_NotificationManager::handlesCompletionDuringPresentationChange()
 {
     using Notification = app::notify::Notification;
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     app::notify::Options options;
     options.presentation = app::notify::Presentation::Persistent;
     auto *card = manager.post(options, &context);
     QVERIFY(card);
     QSignalSpy cardPresentation(card, &Notification::presentationChanged);
-    auto cardConnection = connect(&manager, &app::notify::Manager::countChanged, &context,
-        [&manager, card] {
+    auto cardConnection = connect(&manager, &app::notify::NotificationManager::countChanged,
+        &context, [&manager, card] {
             if (manager.count() == 0)
                 card->cancel();
         });
@@ -472,7 +498,7 @@ void tst_Manager::handlesCompletionDuringPresentationChange()
     auto *decision = manager.post(options, &context);
     QVERIFY(decision);
     QSignalSpy decisionPresentation(decision, &Notification::presentationChanged);
-    connect(&manager, &app::notify::Manager::currentDecisionChanged, &context,
+    connect(&manager, &app::notify::NotificationManager::currentDecisionChanged, &context,
         [&manager, decision] {
             if (!manager.currentDecision())
                 decision->cancel();
@@ -484,9 +510,9 @@ void tst_Manager::handlesCompletionDuringPresentationChange()
     QCOMPARE(decisionPresentation.size(), 0);
 }
 
-void tst_Manager::modalCompletionResumesCardTimeout()
+void tst_NotificationManager::modalCompletionResumesCardTimeout()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     app::notify::Options options;
     options.timeoutMs = 100;
@@ -504,13 +530,12 @@ void tst_Manager::modalCompletionResumesCardTimeout()
     decision->dismiss();
 
     QTRY_COMPARE_WITH_TIMEOUT(cardFinished.size(), 1, 1000);
-    QCOMPARE(cardFinished.first().at(0).value<app::notify::FinishReason>(),
-        app::notify::FinishReason::Expired);
+    QCOMPARE(cardFinished.first().at(0).value<app::notify::Result>(), app::notify::Result::Expired);
 }
 
-void tst_Manager::presentedOverflowCardsCanExpire()
+void tst_NotificationManager::presentedOverflowCardsCanExpire()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     app::notify::Options options;
     options.timeoutMs = 30;
@@ -523,9 +548,9 @@ void tst_Manager::presentedOverflowCardsCanExpire()
     QVERIFY(first->isFinished() == false);
 }
 
-void tst_Manager::ignoresUnknownAndDisabledActions()
+void tst_NotificationManager::ignoresUnknownAndDisabledActions()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     app::notify::Options options;
     options.presentation = app::notify::Presentation::Persistent;
@@ -544,14 +569,13 @@ void tst_Manager::ignoresUnknownAndDisabledActions()
     notification->choose(u"save"_s);
 
     QCOMPARE(finished.size(), 1);
-    QCOMPARE(finished.first().at(0).value<app::notify::FinishReason>(),
-        app::notify::FinishReason::Action);
+    QCOMPARE(finished.first().at(0).value<app::notify::Result>(), app::notify::Result::Action);
     QCOMPARE(finished.first().at(1).toString(), u"save"_s);
 }
 
-void tst_Manager::resumesOverdueCardsWithoutSynchronousCompletion()
+void tst_NotificationManager::resumesOverdueCardsWithoutSynchronousCompletion()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     app::notify::Options options;
     options.timeoutMs = 1;
@@ -580,9 +604,9 @@ void tst_Manager::resumesOverdueCardsWithoutSynchronousCompletion()
     QCOMPARE(manager.count(), 0);
 }
 
-void tst_Manager::autoIdsActionsAndFinishesOnce()
+void tst_NotificationManager::autoIdsActionsAndFinishesOnce()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     int triggeredCount = 0;
     app::notify::Options options;
@@ -615,9 +639,9 @@ void tst_Manager::autoIdsActionsAndFinishesOnce()
     QVERIFY(updatedActions.at(0).id != updatedActions.at(1).id);
 }
 
-void tst_Manager::disconnectsReceiverWhenContextDiesDuringFinish()
+void tst_NotificationManager::disconnectsReceiverWhenContextDiesDuringFinish()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     auto *context = new QObject;
     int triggeredCount = 0;
     app::notify::Options options;
@@ -643,9 +667,9 @@ void tst_Manager::disconnectsReceiverWhenContextDiesDuringFinish()
     QVERIFY(context == nullptr);
 }
 
-void tst_Manager::callsConnectedReceiverWithLiveContext()
+void tst_NotificationManager::callsConnectedReceiverWithLiveContext()
 {
-    app::notify::Manager manager;
+    app::notify::NotificationManager manager;
     QObject context;
     int calls = 0;
     app::notify::Options options;
@@ -669,6 +693,6 @@ void tst_Manager::callsConnectedReceiverWithLiveContext()
     QCOMPARE(calls, 1);
 }
 
-QTEST_MAIN(tst_Manager)
+QTEST_MAIN(tst_NotificationManager)
 
-#include "tst_Manager.moc"
+#include "tst_NotificationManager.moc"

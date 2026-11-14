@@ -38,7 +38,7 @@ feedback without interrupting the user, or ask for a decision when the work cann
 without one. Use notifications for events that matter to the user; routine background work
 usually needs no message.
 
-Sketchbook uses `app::notify::Manager` for feedback from C++. For example, moving
+Sketchbook uses `app::notify::NotificationManager` for feedback from C++. For example, moving
 through the drawing history posts a short message:
 
 ::: {.snippet source="src/sketchbook/SketchbookViewModel.cpp"}
@@ -68,23 +68,22 @@ context is destroyed. Posting returns null if the context is invalid, the manage
 down, or the notification finishes during posting. Sketchbook uses action IDs to handle
 save recovery.
 
-Feature imports use an alias so component names can stay short:
+Import the feature to use its components:
 
 ```qml
-import App.Notify as Notify
+import App.Notify
 
-Notify.Host {
+NotificationHost {
     manager: root.notifications
 }
 ```
 
-C++ uses `app::notify::Severity::Warning`; QML uses
-`Notify.Severity.Warning`. `Namespace.hpp` groups the feature's enums, `Options`,
-and `Action`. The enums are declared directly in `app::notify`. Small QML adapters
-forward their values, exposing each enum under its own name. Structured values use
-`Notify.options` and `Notify.action` in QML.
+C++ uses `app::notify::Severity::Warning`; QML uses `Notify.Severity.Warning`.
+`NotifyTypes.hpp` groups the enums and the `Options` and `Action`
+value types. The `Notify` QML namespace exposes the C++ enums directly. Structured
+values use `options` and `action` in QML.
 
-`Notify.Host` has separate `notificationDelegate` and `decisionDelegate` components.
+`NotificationHost` has separate `notificationDelegate` and `decisionDelegate` components.
 Both expose the active delegate and have a built-in default; assign a component to replace it.
 Assigning null removes the delegate. Use a conditional `Binding` to restore the default after a
 temporary override.
@@ -92,7 +91,7 @@ The notification delegate is a list delegate with a required `notification` prop
 cards must report presentation and pause state through `notification.setPresentationState()`
 so passive timeouts run only while visible. A decision delegate binds its `notification` to
 the manager's `currentDecision`, handles its own keyboard focus, and calls `choose()` or
-`dismiss()` on the notification. `Notify.Dialog` owns the modal presentation; the host
+`dismiss()` on the notification. `NotificationDialog` owns the modal presentation; the host
 coordinates the queue.
 
 Build and run the manual notification test to exercise the API and compare custom views:

@@ -4,12 +4,12 @@ import QtQuick
 import QtQuick.Window
 
 import App.Controls
-import App.Notify as Notify
+import App.Notify
 
 Item {
     id: root
 
-    required property Notify.Manager manager
+    required property NotificationManager manager
     property alias notificationDelegate: cardList.delegate
     property alias decisionDelegate: decisionDialog.decisionDelegate
     readonly property bool hostActive: Window.window ? Window.window.active : true
@@ -96,7 +96,7 @@ Item {
         onClicked: root.manager.dismissPassive()
     }
 
-    Notify.Dialog {
+    NotificationDialog {
         id: decisionDialog
 
         notification: root.manager.currentDecision
@@ -105,7 +105,7 @@ Item {
     Component {
         id: defaultNotification
 
-        Notify.Card {
+        NotificationCard {
             viewport: cardList
             width: Math.max(0, cardList.width - Theme.spacing)
             x: Theme.spacing / 2
@@ -116,17 +116,17 @@ Item {
         target: root.manager
 
         function onRowsInserted(): void {
-            Qt.callLater(cardList.positionViewAtBeginning);
-        }
+        Qt.callLater(cardList.positionViewAtBeginning);
+    }
 
         function onCurrentDecisionChanged(): void {
-            if (root.manager.currentDecision) {
-                decisionCloseTimer.stop();
-                if (!decisionDialog.visible)
-                    decisionDialog.open();
-                return;
-            }
-            decisionCloseTimer.restart();
-        }
+                                                 if (root.manager.currentDecision) {
+                                                     decisionCloseTimer.stop();
+                                                     if (!decisionDialog.visible)
+                                                     decisionDialog.open();
+                                                     return;
+                                                 }
+                                                 decisionCloseTimer.restart();
+                                             }
     }
 }

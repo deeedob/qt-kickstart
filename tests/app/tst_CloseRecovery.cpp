@@ -3,7 +3,7 @@
 #include <sketchbook/SketchbookViewModel.hpp>
 
 #include <canvas/CanvasStore.hpp>
-#include <notify/Manager.hpp>
+#include <notify/NotificationManager.hpp>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -43,7 +43,7 @@ struct MainFixture
     QTemporaryDir directory;
     SketchStorage storage;
     CanvasStore canvas;
-    app::notify::Manager notifications;
+    app::notify::NotificationManager notifications;
     SketchbookViewModel sketchbook{ storage, canvas, notifications };
     QSettings settings{ directory.filePath("settings.ini"_L1), QSettings::IniFormat };
     app::AppController controller{
@@ -118,7 +118,7 @@ private Q_SLOTS:
         QTRY_COMPARE(saves.count(), 1);
         QTRY_COMPARE(fixture.notifications.count(), 1);
         auto *recovery = qvariant_cast<app::notify::Notification *>(fixture.notifications.data(
-            fixture.notifications.index(0), app::notify::Manager::NotificationRole));
+            fixture.notifications.index(0), app::notify::NotificationManager::NotificationRole));
         QVERIFY(recovery);
 
         fixture.window->close();
@@ -127,7 +127,7 @@ private Q_SLOTS:
         QTRY_VERIFY(!fixture.notifications.currentDecision());
         QTRY_COMPARE(fixture.notifications.count(), 1);
         recovery = qvariant_cast<app::notify::Notification *>(fixture.notifications.data(
-            fixture.notifications.index(0), app::notify::Manager::NotificationRole));
+            fixture.notifications.index(0), app::notify::NotificationManager::NotificationRole));
         QVERIFY(recovery);
         fixture.window->close();
         QCOMPARE(fixture.notifications.currentDecision(), recovery);

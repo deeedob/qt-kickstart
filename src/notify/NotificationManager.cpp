@@ -1,4 +1,4 @@
-#include "Manager.hpp"
+#include "NotificationManager.hpp"
 
 #include <QtCore/QLoggingCategory>
 #include <QtCore/QThread>
@@ -13,22 +13,22 @@ namespace app::notify {
 
 Q_STATIC_LOGGING_CATEGORY(lcNotify, "app.notify")
 
-Manager::Manager(QObject *parent)
+NotificationManager::NotificationManager(QObject *parent)
     : QAbstractListModel(parent)
 {
 }
 
-Manager::~Manager()
+NotificationManager::~NotificationManager()
 {
     shutdown();
 }
 
-int Manager::rowCount(const QModelIndex &parent) const
+int NotificationManager::rowCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : static_cast<int>(m_cards.size());
 }
 
-QVariant Manager::data(const QModelIndex &index, int role) const
+QVariant NotificationManager::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() < 0 || index.row() >= rowCount())
         return {};
@@ -37,29 +37,30 @@ QVariant Manager::data(const QModelIndex &index, int role) const
     return QVariant::fromValue(m_cards[static_cast<std::size_t>(index.row())]);
 }
 
-QHash<int, QByteArray> Manager::roleNames() const
+QHash<int, QByteArray> NotificationManager::roleNames() const
 {
     return {
         { NotificationRole, QByteArrayLiteral("notification") }
     };
 }
 
-int Manager::count() const
+int NotificationManager::count() const
 {
     return rowCount();
 }
 
-Notification *Manager::currentDecision() const
+Notification *NotificationManager::currentDecision() const
 {
     return m_currentDecision;
 }
 
-Notification *Manager::post(const Options &options, QObject *context)
+Notification *NotificationManager::post(const Options &options, QObject *context)
 {
-    return post(options, context, std::function<void(FinishReason, const QString &)>{});
+    return post(options, context, std::function<void(Result, const QString &)>{});
 }
 
-Notification *Manager::post(const Options &options, QObject *context, const QJSValue &onFinished)
+Notification *NotificationManager::post(const Options &options, QObject *context,
+    const QJSValue &onFinished)
 {
     if (onFinished.isUndefined() || onFinished.isNull())
         return post(options, context);
@@ -74,21 +75,19 @@ Notification *Manager::post(const Options &options, QObject *context, const QJSV
         qCWarning(lcNotify, "Notification callback context must belong to a JavaScript engine");
         return nullptr;
     }
-    return post(options, context,
-        [onFinished, engine](FinishReason reason, const QString &actionId) {
-            if (!engine)
-                return;
-            const QJSManagedValue callback(onFinished, engine);
-            callback.call({ QJSValue(static_cast<int>(reason)), QJSValue(actionId) });
-            if (engine && engine->hasError())
-                qCWarning(lcNotify).noquote()
-                    << "Notification completion callback failed:"
-                    << engine->catchError().toString();
-        });
+    return post(options, context, [onFinished, engine](Result reason, const QString &actionId) {
+        if (!engine)
+            return;
+        const QJSManagedValue callback(onFinished, engine);
+        callback.call({ QJSValue(static_cast<int>(reason)), QJSValue(actionId) });
+        if (engine && engine->hasError())
+            qCWarning(lcNotify).noquote()
+                << "Notification completion callback failed:" << engine->catchError().toString();
+    });
 }
 
-Notification *Manager::post(const Options &options, QObject *context,
-    std::function<void(FinishReason, const QString &)> onFinished)
+Notification *NotificationManager::post(const Options &options, QObject *context,
+    std::function<void(Result, const QString &)> onFinished)
 {
     if (m_shutdown || !context || QThread::currentThread() != thread()
         || context->thread() != thread())
@@ -114,14 +113,14 @@ Notification *Manager::post(const Options &options, QObject *context,
     return current && !current->isFinished() ? current : nullptr;
 }
 
-Notification *Manager::postMessage(const QString &message)
+Notification *NotificationManager::postMessage(const QString &message)
 {
     Options options;
     options.message = message;
     return post(options, this);
 }
 
-void Manager::setHostActive(bool active)
+void NotificationManager::setHostActive(bool active)
 {
     if (m_hostActive == active)
         return;
@@ -130,7 +129,7 @@ void Manager::setHostActive(bool active)
     updateTimerEligibility();
 }
 
-void Manager::dismissPassive()
+void NotificationManager::dismissPassive()
 {
     std::vector<QPointer<Notification>> passive;
     for (auto *message : m_cards)
@@ -143,7 +142,7 @@ void Manager::dismissPassive()
     }
 }
 
-void Manager::shutdown()
+void NotificationManager::shutdown()
 {
     if (m_shutdown)
         return;
@@ -158,10 +157,10 @@ void Manager::shutdown()
         requests.emplace_back(m_currentDecision);
     for (const auto &notification : requests)
         if (notification)
-            finish(notification, FinishReason::Cancelled);
+            finish(notification, Result::Cancelled);
 }
 
-void Manager::finish(Notification *notification, FinishReason reason, const QString &actionId)
+void NotificationManager::finish(Notification *notification, Result reason, const QString &actionId)
 {
     if (!notification || notification->m_finished)
         return;
@@ -184,7 +183,7 @@ void Manager::finish(Notification *notification, FinishReason reason, const QStr
         guardedNotification->deleteLater();
 }
 
-void Manager::presentationChanged(Notification *notification, Presentation previous)
+void NotificationManager::presentationChanged(Notification *notification, Presentation previous)
 {
     const QPointer<Notification> guardedNotification(notification);
     const auto current = notification->presentation();
@@ -227,14 +226,14 @@ void Manager::presentationChanged(Notification *notification, Presentation previ
     }
 }
 
-void Manager::updateTimerEligibility()
+void NotificationManager::updateTimerEligibility()
 {
     const bool active = m_hostActive && !m_currentDecision;
     for (auto *notification : m_cards)
         notification->setManagerActive(active);
 }
 
-void Manager::promoteDecision()
+void NotificationManager::promoteDecision()
 {
     if (m_currentDecision)
         return;
@@ -246,7 +245,7 @@ void Manager::promoteDecision()
     updateTimerEligibility();
 }
 
-void Manager::insertCard(Notification *notification)
+void NotificationManager::insertCard(Notification *notification)
 {
     const auto severity = notification->severity();
     const auto row = std::ranges::find_if(m_cards.begin(), m_cards.end(),
@@ -261,7 +260,7 @@ void Manager::insertCard(Notification *notification)
     updateTimerEligibility();
 }
 
-void Manager::removeNotification(Notification *notification)
+void NotificationManager::removeNotification(Notification *notification)
 {
     const int row = rowOf(notification);
     if (row >= 0) {
@@ -281,7 +280,7 @@ void Manager::removeNotification(Notification *notification)
     std::erase(m_decisions, notification);
 }
 
-int Manager::rowOf(const Notification *notification) const
+int NotificationManager::rowOf(const Notification *notification) const
 {
     const auto found = std::ranges::find(m_cards, notification);
     return found == m_cards.end() ? -1 : static_cast<int>(std::distance(m_cards.begin(), found));

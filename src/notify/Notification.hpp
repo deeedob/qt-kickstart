@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Namespace.hpp"
+#include "NotifyTypes.hpp"
 
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QList>
@@ -14,17 +14,18 @@ QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace app::notify {
 
-class Manager;
+class NotificationManager;
 
 class Notification final : public QObject
 {
     Q_OBJECT
     QML_NAMED_ELEMENT(Notification)
-    QML_UNCREATABLE("Created and owned by Manager")
+    QML_UNCREATABLE("Created and owned by NotificationManager")
     Q_PROPERTY(quint64 id READ id CONSTANT FINAL)
     Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged FINAL)
     Q_PROPERTY(QString message READ message WRITE setMessage NOTIFY messageChanged FINAL)
     Q_PROPERTY(app::notify::Severity severity READ severity CONSTANT FINAL)
+    Q_PROPERTY(QString severitySymbol READ severitySymbol CONSTANT FINAL)
     Q_PROPERTY(
         app::notify::Presentation presentation READ presentation NOTIFY presentationChanged FINAL)
     Q_PROPERTY(QList<app::notify::Action> actions READ actions WRITE setActions NOTIFY
@@ -36,6 +37,7 @@ public:
     [[nodiscard]] QString title() const { return m_title; }
     [[nodiscard]] QString message() const { return m_message; }
     [[nodiscard]] Severity severity() const { return m_severity; }
+    [[nodiscard]] QString severitySymbol() const;
     [[nodiscard]] Presentation presentation() const { return m_presentation; }
     [[nodiscard]] QList<Action> actions() const { return m_actions; }
     [[nodiscard]] bool isFinished() const { return m_finished; }
@@ -57,17 +59,18 @@ Q_SIGNALS:
     void presentationChanged();
     void actionsChanged();
     void isFinishedChanged();
-    void finished(app::notify::FinishReason reason, const QString &actionId);
+    void finished(app::notify::Result reason, const QString &actionId);
 
 private:
-    friend class Manager;
+    friend class NotificationManager;
 
-    Notification(Manager *manager, quint64 id, const Options &options, QObject *context);
+    Notification(NotificationManager *manager, quint64 id, const Options &options,
+        QObject *context);
     void updateTimerEligibility();
     void setManagerActive(bool active);
     void assignActionIds(QList<Action> &actions) const;
 
-    Manager *m_manager;
+    NotificationManager *m_manager;
     quint64 m_id;
     QString m_title;
     QString m_message;

@@ -1,6 +1,6 @@
 #include "Notification.hpp"
 
-#include "Manager.hpp"
+#include "NotificationManager.hpp"
 
 #include <QtCore/QSet>
 #include <QtCore/QTimer>
@@ -9,7 +9,23 @@
 
 namespace app::notify {
 
-Notification::Notification(Manager *manager, quint64 id, const Options &options, QObject *context)
+QString Notification::severitySymbol() const
+{
+    switch (m_severity) {
+    case Severity::Success:
+        return QStringLiteral("✓");
+    case Severity::Warning:
+        return QStringLiteral("!");
+    case Severity::Error:
+        return QStringLiteral("×");
+    case Severity::Information:
+        return QStringLiteral("i");
+    }
+    return QStringLiteral("i");
+}
+
+Notification::Notification(NotificationManager *manager, quint64 id, const Options &options,
+    QObject *context)
     : QObject(manager)
     , m_manager(manager)
     , m_id(id)
@@ -25,9 +41,7 @@ Notification::Notification(Manager *manager, quint64 id, const Options &options,
 {
     assignActionIds(m_actions);
     m_timer->setSingleShot(true);
-    connect(m_timer, &QTimer::timeout, this, [this] {
-        m_manager->finish(this, FinishReason::Expired);
-    });
+    connect(m_timer, &QTimer::timeout, this, [this] { m_manager->finish(this, Result::Expired); });
     connect(context, &QObject::destroyed, m_manager,
         [manager = m_manager, notification = QPointer<Notification>(this)] {
             QTimer::singleShot(0, manager, [notification] {
@@ -95,19 +109,19 @@ void Notification::choose(const QString &actionId)
         return;
 
     const auto selectedId = action->id;
-    m_manager->finish(this, FinishReason::Action, selectedId);
+    m_manager->finish(this, Result::Action, selectedId);
 }
 
 void Notification::dismiss()
 {
     if (!m_finished && m_context)
-        m_manager->finish(this, FinishReason::Dismissed);
+        m_manager->finish(this, Result::Dismissed);
 }
 
 void Notification::cancel()
 {
     if (!m_finished)
-        m_manager->finish(this, FinishReason::Cancelled);
+        m_manager->finish(this, Result::Cancelled);
 }
 
 void Notification::setPresentationState(bool presented, bool paused)

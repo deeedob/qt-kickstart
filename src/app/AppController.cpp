@@ -1,7 +1,7 @@
 #include "AppController.hpp"
-#include <notify/Manager.hpp>
-#include <notify/Namespace.hpp>
 #include <notify/Notification.hpp>
+#include <notify/NotificationManager.hpp>
+#include <notify/NotifyTypes.hpp>
 
 #include <BuildInfo.hpp>
 
@@ -44,7 +44,7 @@ namespace {
 } // namespace
 
 AppController::AppController(Directories directories, QSettings &settings,
-    notify::Manager &notifications, QObject *parent)
+    notify::NotificationManager &notifications, QObject *parent)
     : QObject(parent)
     , m_directories(std::move(directories))
     , m_darkTheme(settings.contains("theme/dark"_L1)

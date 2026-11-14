@@ -13,10 +13,10 @@
 
 namespace app::notify {
 
-class Manager final : public QAbstractListModel
+class NotificationManager final : public QAbstractListModel
 {
     Q_OBJECT
-    QML_NAMED_ELEMENT(Manager)
+    QML_NAMED_ELEMENT(NotificationManager)
     QML_UNCREATABLE("Created in main() and passed to the application window")
     Q_PROPERTY(int count READ count NOTIFY countChanged FINAL)
     Q_PROPERTY(app::notify::Notification *currentDecision READ currentDecision NOTIFY
@@ -27,8 +27,8 @@ public:
     enum Role { NotificationRole = Qt::UserRole + 1 };
     Q_ENUM(Role)
 
-    explicit Manager(QObject *parent = nullptr);
-    ~Manager() override;
+    explicit NotificationManager(QObject *parent = nullptr);
+    ~NotificationManager() override;
 
     [[nodiscard]] int rowCount(const QModelIndex &parent = {}) const override;
     [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
@@ -41,7 +41,7 @@ public:
     Q_INVOKABLE app::notify::Notification *post(const app::notify::Options &options,
         QObject *context);
     Notification *post(const Options &options, QObject *context,
-        std::function<void(FinishReason, const QString &)> onFinished);
+        std::function<void(Result, const QString &)> onFinished);
     Q_INVOKABLE app::notify::Notification *post(const app::notify::Options &options,
         QObject *context, const QJSValue &onFinished);
     Q_INVOKABLE app::notify::Notification *postMessage(const QString &message);
@@ -57,7 +57,7 @@ Q_SIGNALS:
 private:
     friend class Notification;
 
-    void finish(Notification *notification, FinishReason reason, const QString &actionId = {});
+    void finish(Notification *notification, Result reason, const QString &actionId = {});
     void presentationChanged(Notification *notification, Presentation previous);
     void updateTimerEligibility();
     void promoteDecision();

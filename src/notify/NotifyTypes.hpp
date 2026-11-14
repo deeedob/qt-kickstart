@@ -7,6 +7,7 @@
 
 namespace app::notify {
 Q_NAMESPACE
+QML_NAMED_ELEMENT(Notify)
 
 enum class Severity { Information, Success, Warning, Error };
 Q_ENUM_NS(Severity)
@@ -14,8 +15,8 @@ Q_ENUM_NS(Severity)
 enum class Presentation { Passive, Persistent, Decision };
 Q_ENUM_NS(Presentation)
 
-enum class FinishReason { Action, Dismissed, Expired, Cancelled };
-Q_ENUM_NS(FinishReason)
+enum class Result { Action, Dismissed, Expired, Cancelled };
+Q_ENUM_NS(Result)
 
 class Action
 {
@@ -58,41 +59,3 @@ public:
 };
 
 } // namespace app::notify
-
-namespace app::notify::qml::severity {
-Q_NAMESPACE
-QML_NAMED_ELEMENT(Severity)
-
-enum class Value {
-    Information = static_cast<int>(app::notify::Severity::Information),
-    Success = static_cast<int>(app::notify::Severity::Success),
-    Warning = static_cast<int>(app::notify::Severity::Warning),
-    Error = static_cast<int>(app::notify::Severity::Error),
-};
-Q_ENUM_NS(Value)
-}
-
-namespace app::notify::qml::presentation {
-Q_NAMESPACE
-QML_NAMED_ELEMENT(Presentation)
-
-enum class Value {
-    Passive = static_cast<int>(app::notify::Presentation::Passive),
-    Persistent = static_cast<int>(app::notify::Presentation::Persistent),
-    Decision = static_cast<int>(app::notify::Presentation::Decision),
-};
-Q_ENUM_NS(Value)
-}
-
-namespace app::notify::qml::finishReason {
-Q_NAMESPACE
-QML_NAMED_ELEMENT(FinishReason)
-
-enum class Value {
-    Action = static_cast<int>(app::notify::FinishReason::Action),
-    Dismissed = static_cast<int>(app::notify::FinishReason::Dismissed),
-    Expired = static_cast<int>(app::notify::FinishReason::Expired),
-    Cancelled = static_cast<int>(app::notify::FinishReason::Cancelled),
-};
-Q_ENUM_NS(Value)
-}

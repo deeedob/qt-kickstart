@@ -1,7 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import App.Controls
-import App.Notify as Notify
+import App.Notify
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Effects
@@ -10,7 +10,7 @@ FocusScope {
     id: root
     objectName: "notificationCard"
 
-    required property Notify.Notification notification
+    required property Notification notification
     property Flickable viewport: null
     readonly property real viewportY: root.viewport ? root.y - root.viewport.contentY : 0
     readonly property bool presented: root.visible && (!root.viewport || (root.viewportY
@@ -24,10 +24,10 @@ FocusScope {
     height: implicitHeight
 
     function updatePresentation(): void {
-        if (root.notification)
-            root.notification.setPresentationState(root.presented, hoverHandler.hovered
-                                                   || root.activeFocus);
-    }
+    if (root.notification)
+    root.notification.setPresentationState(root.presented, hoverHandler.hovered
+    || root.activeFocus);
+}
 
     Component.onCompleted: root.updatePresentation()
     Component.onDestruction: {
@@ -86,11 +86,44 @@ FocusScope {
                     anchors.margins: Theme.spacing / 2
                     spacing: Theme.spacing * 0.75
 
-                    Notify.SeverityBadge {
+                    Rectangle {
                         id: badge
                         objectName: "severityBadge"
-                        severity: root.notification ? root.notification.severity :
-                                                      Notify.Severity.Information
+
+                        readonly property int severity: root.notification
+                                                        ? root.notification.severity :
+                                                          Notify.Severity.Information
+                        readonly property color severityColor: badge.severity
+                                                               === Notify.Severity.Success
+                                                               ? Theme.success : badge.severity
+                                                                 === Notify.Severity.Warning
+                                                                 ? Theme.warning : badge.severity
+                                                                   === Notify.Severity.Error
+                                                                   ? Theme.error : Theme.information
+
+                        implicitWidth: 22
+                        implicitHeight: 22
+                        radius: width / 2
+                        color: Qt.rgba(badge.severityColor.r, badge.severityColor.g,
+                                       badge.severityColor.b, 0.18)
+
+                        Label {
+                            anchors.centerIn: parent
+                            text: root.notification ? root.notification.severitySymbol : "i"
+                            Accessible.name: badge.severity === Notify.Severity.Success ? qsTr(
+                                                                                              "Success") :
+                                                                                          badge.severity
+                                                                                          === Notify.Severity.Warning
+                                                                                          ? qsTr("Warning") :
+                                                                                            badge.severity
+                                                                                            === Notify.Severity.Error
+                                                                                            ? qsTr("Error") :
+                                                                                              qsTr("Information")
+                            color: badge.severityColor
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 13
+                            font.weight: Font.Bold
+                        }
                     }
 
                     Label {

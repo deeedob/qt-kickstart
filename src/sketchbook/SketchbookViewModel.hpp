@@ -4,7 +4,7 @@
 #include "SketchStorage.hpp"
 
 #include <canvas/CanvasStore.hpp>
-#include <notify/Manager.hpp>
+#include <notify/NotificationManager.hpp>
 
 #include <QtCore/QHash>
 #include <QtCore/QObject>
@@ -24,7 +24,7 @@ class SketchbookViewModel : public QObject
 
 public:
     SketchbookViewModel(SketchStorage &storage, canvas::CanvasStore &canvas,
-        notify::Manager &notifications, QObject *parent = nullptr);
+        notify::NotificationManager &notifications, QObject *parent = nullptr);
 
     [[nodiscard]] SketchListModel *model();
     [[nodiscard]] QString openName() const;
@@ -69,7 +69,7 @@ private:
 
     SketchStorage &m_storage;
     canvas::CanvasStore &m_canvas;
-    notify::Manager &m_notifications;
+    notify::NotificationManager &m_notifications;
     QPointer<notify::Notification> m_recovery;
     SketchListModel m_model{ this };
     QString m_openId;

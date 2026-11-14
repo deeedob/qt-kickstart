@@ -1,4 +1,4 @@
-#include <notify/Manager.hpp>
+#include <notify/NotificationManager.hpp>
 
 #include <QtCore/QDir>
 #include <QtCore/QMetaEnum>
@@ -15,7 +15,7 @@
 
 using namespace Qt::StringLiterals;
 
-class tst_Host : public QObject
+class tst_NotificationHost : public QObject
 {
     Q_OBJECT
 
@@ -32,28 +32,43 @@ private Q_SLOTS:
 
     void init() { QTest::failOnWarning(); }
 
-    void qmlUsesFeatureTypesDirectly_data()
+    void qmlUsesNotifyNamespace()
     {
-        QTest::addColumn<bool>("qualified");
-        QTest::newRow("qualified") << true;
-        QTest::newRow("unqualified") << false;
+        QQmlEngine engine;
+        QQmlComponent component(&engine);
+        component.setData(R"(
+            import QtQuick
+            import App.Notify
+            QtObject {
+                property int severity: Notify.Severity.Error
+                property int presentation: Notify.Presentation.Decision
+                property int result: Notify.Result.Dismissed
+            }
+        )",
+            QUrl());
+        QVERIFY2(component.isReady(), qPrintable(component.errorString()));
+        QScopedPointer<QObject> object(component.create());
+        QVERIFY(object);
+        QCOMPARE(object->property("severity").toInt(), int(app::notify::Severity::Error));
+        QCOMPARE(object->property("presentation").toInt(),
+            int(app::notify::Presentation::Decision));
+        QCOMPARE(object->property("result").toInt(), int(app::notify::Result::Dismissed));
     }
 
     void qmlUsesFeatureTypesDirectly()
     {
-        QFETCH(bool, qualified);
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         QQmlEngine engine;
         QQmlComponent component(&engine);
-        QString source = uR"(
+        const QString source = uR"(
             pragma ComponentBehavior: Bound
             import QtQuick
-            import App.Notify as Notify
+            import App.Notify
             QtObject {
                 id: root
-                required property Notify.Manager manager
-                property Notify.action acceptAction: ({ id: "accept", text: "Accept" })
-                property Notify.options settings: ({
+                required property NotificationManager manager
+                property action acceptAction: ({ id: "accept", text: "Accept" })
+                property options settings: ({
                     message: "Direct feature types",
                     severity: Notify.Severity.Warning,
                     presentation: Notify.Presentation.Persistent,
@@ -63,10 +78,10 @@ private Q_SLOTS:
                     Notify.Severity.Warning, Notify.Severity.Error]
                 property list<int> presentations: [Notify.Presentation.Passive,
                     Notify.Presentation.Persistent, Notify.Presentation.Decision]
-                property list<int> finishReasons: [Notify.FinishReason.Action,
-                    Notify.FinishReason.Dismissed, Notify.FinishReason.Expired,
-                    Notify.FinishReason.Cancelled]
-                property int actionReason: Notify.FinishReason.Action
+                property list<int> finishReasons: [Notify.Result.Action,
+                    Notify.Result.Dismissed, Notify.Result.Expired,
+                    Notify.Result.Cancelled]
+                property int actionReason: Notify.Result.Action
                 property int result: -1
                 function post(): void {
                     root.manager.post(root.settings, root, function(reason, actionId) {
@@ -75,10 +90,6 @@ private Q_SLOTS:
                 }
             }
         )"_s;
-        if (!qualified) {
-            source.replace(u"import App.Notify as Notify"_s, u"import App.Notify"_s);
-            source.replace(u"Notify."_s, QString());
-        }
         component.setData(source.toUtf8(), QUrl());
         QVERIFY2(component.isReady(), qPrintable(component.errorString()));
         QScopedPointer<QObject> object(component.createWithInitialProperties({
@@ -93,34 +104,36 @@ private Q_SLOTS:
         };
         compareValues("severities", QMetaEnum::fromType<app::notify::Severity>());
         compareValues("presentations", QMetaEnum::fromType<app::notify::Presentation>());
-        compareValues("finishReasons", QMetaEnum::fromType<app::notify::FinishReason>());
+        compareValues("finishReasons", QMetaEnum::fromType<app::notify::Result>());
         QVERIFY(QMetaObject::invokeMethod(object.data(), "post"));
         QCOMPARE(manager.count(), 1);
-        auto *notification = manager.data(manager.index(0), app::notify::Manager::NotificationRole)
+        auto *notification = manager
+                                 .data(manager.index(0),
+                                     app::notify::NotificationManager::NotificationRole)
                                  .value<app::notify::Notification *>();
         QVERIFY(notification);
         QCOMPARE(notification->severity(), app::notify::Severity::Warning);
         QCOMPARE(notification->presentation(), app::notify::Presentation::Persistent);
         QCOMPARE(notification->actions().first().text, u"Accept"_s);
         QCOMPARE(object->property("actionReason").toInt(),
-            static_cast<int>(app::notify::FinishReason::Action));
+            static_cast<int>(app::notify::Result::Action));
         notification->choose(u"accept"_s);
         QCOMPARE(object->property("result").toInt(), object->property("actionReason").toInt());
     }
 
     void qmlPostsStructuredNotification()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         QQmlEngine engine;
         QQmlComponent component(&engine);
         component.setData(R"(
             import QtQuick
-            import App.Notify as Notify
+            import App.Notify
             QtObject {
                 id: root
-                required property Notify.Manager manager
+                required property NotificationManager manager
                 property string result: ""
-                property Notify.Notification request: root.manager.post({message: "QML message", presentation: Notify.Presentation.Decision,
+                property Notification request: root.manager.post({message: "QML message", presentation: Notify.Presentation.Decision,
                     actions: [{id: "accept", text: "Accept", enabled: true}]}, root,
                     function(reason, actionId) { root.result = actionId; })
                 function makePersistent(): void { root.request.setPresentation(Notify.Presentation.Persistent); }
@@ -154,18 +167,18 @@ private Q_SLOTS:
 
     void qmlCallbackCompletesDuringPost()
     {
-        app::notify::Manager manager;
-        connect(&manager, &app::notify::Manager::countChanged, this, [&manager] {
+        app::notify::NotificationManager manager;
+        connect(&manager, &app::notify::NotificationManager::countChanged, this, [&manager] {
             manager.dismissPassive();
         });
         QQmlEngine engine;
         QQmlComponent component(&engine);
         component.setData(R"(
             import QtQuick
-            import App.Notify as Notify
+            import App.Notify
             QtObject {
                 id: root
-                required property Notify.Manager manager
+                required property NotificationManager manager
                 property int calls: 0
                 property int reason: -1
                 Component.onCompleted: root.manager.post({}, root, function(reason, actionId) {
@@ -181,21 +194,21 @@ private Q_SLOTS:
         QVERIFY(object);
         QCOMPARE(object->property("calls").toInt(), 1);
         QCOMPARE(object->property("reason").toInt(),
-            static_cast<int>(app::notify::FinishReason::Dismissed));
+            static_cast<int>(app::notify::Result::Dismissed));
         QCOMPARE(manager.count(), 0);
     }
 
     void qmlCallbackFollowsContextLifetime()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         QQmlEngine engine;
         QQmlComponent component(&engine);
         component.setData(R"(
             import QtQuick
-            import App.Notify as Notify
+            import App.Notify
             QtObject {
                 id: root
-                required property Notify.Manager manager
+                required property NotificationManager manager
                 property int calls: 0
                 property QtObject context: QtObject { objectName: "callbackContext" }
                 Component.onCompleted: root.manager.post({}, root.context, function(reason, actionId) {
@@ -231,17 +244,17 @@ private Q_SLOTS:
 
     void qmlCallbackReportsErrors()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         QQmlEngine engine;
         QQmlComponent component(&engine);
         QFETCH(QString, body);
         QFETCH(QByteArray, warning);
         const auto source = uR"(
             import QtQuick
-            import App.Notify as Notify
+            import App.Notify
             QtObject {
                 id: root
-                required property Notify.Manager manager
+                required property NotificationManager manager
                 Component.onCompleted: root.manager.post({}, root, function(reason, actionId) {
                     %1
                 })
@@ -261,16 +274,16 @@ private Q_SLOTS:
 
     void qmlContextDestructionCancelsNotification()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         QQmlEngine engine;
         QQmlComponent component(&engine);
         component.setData(R"(
             import QtQuick
-            import App.Notify as Notify
+            import App.Notify
             QtObject {
                 id: root
-                required property Notify.Manager manager
-                property Notify.Notification request: root.manager.post({message: "Pending"}, root)
+                required property NotificationManager manager
+                property Notification request: root.manager.post({message: "Pending"}, root)
             }
         )",
             QUrl());
@@ -278,28 +291,30 @@ private Q_SLOTS:
             { u"manager"_s, QVariant::fromValue(&manager) }
         }));
         QVERIFY(object);
-        auto *message = manager.data(manager.index(0), app::notify::Manager::NotificationRole)
+        auto *message = manager
+                            .data(manager.index(0),
+                                app::notify::NotificationManager::NotificationRole)
                             .value<app::notify::Notification *>();
         QVERIFY(message);
         QSignalSpy finished(message, &app::notify::Notification::finished);
         object.reset();
         QTRY_COMPARE(finished.size(), 1);
-        QCOMPARE(finished.first().at(0).value<app::notify::FinishReason>(),
-            app::notify::FinishReason::Cancelled);
+        QCOMPARE(finished.first().at(0).value<app::notify::Result>(),
+            app::notify::Result::Cancelled);
         QCOMPARE(manager.count(), 0);
     }
 
     void qmlCanPostWithoutKeepingResult()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         QQmlEngine engine;
         QQmlComponent component(&engine);
         component.setData(R"(
             import QtQuick
-            import App.Notify as Notify
+            import App.Notify
             QtObject {
                 id: root
-                required property Notify.Manager manager
+                required property NotificationManager manager
                 Component.onCompleted: root.manager.postMessage("Fire and forget")
             }
         )",
@@ -311,7 +326,9 @@ private Q_SLOTS:
         QCOMPARE(manager.count(), 1);
         engine.collectGarbage();
         QCOMPARE(manager.count(), 1);
-        auto *message = manager.data(manager.index(0), app::notify::Manager::NotificationRole)
+        auto *message = manager
+                            .data(manager.index(0),
+                                app::notify::NotificationManager::NotificationRole)
                             .value<app::notify::Notification *>();
         QVERIFY(message);
         QCOMPARE(message->message(), u"Fire and forget"_s);
@@ -321,7 +338,7 @@ private Q_SLOTS:
 
     void cardsRemainIndependentUntilDismissed()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         app::notify::Options options;
         options.presentation = app::notify::Presentation::Persistent;
         options.message = u"First message"_s;
@@ -364,7 +381,7 @@ private Q_SLOTS:
 
     void overflowShowsWaitingRequests()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         app::notify::Options options;
         options.presentation = app::notify::Presentation::Persistent;
         for (int index = 0; index < 4; ++index) {
@@ -387,7 +404,7 @@ private Q_SLOTS:
 
     void scrollingUpdatesCardPresentation()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         app::notify::Options options;
         options.presentation = app::notify::Presentation::Persistent;
         for (int i = 0; i < 20; ++i)
@@ -416,7 +433,7 @@ private Q_SLOTS:
 
     void cardsHaveSubtleBorder()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         app::notify::Options options;
         options.presentation = app::notify::Presentation::Persistent;
         QVERIFY(manager.post(options, this));
@@ -441,7 +458,7 @@ private Q_SLOTS:
 
     void cardsWrapAndActionsRemainVisibleAtNarrowWidth()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         app::notify::Options options;
         options.presentation = app::notify::Presentation::Persistent;
         options.title = u"A long notification title that needs two lines"_s;
@@ -511,7 +528,7 @@ private Q_SLOTS:
 
     void decisionsSerializeEscapeAndRestoreFocus()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         app::notify::Options options;
         options.presentation = app::notify::Presentation::Decision;
         options.actions = {
@@ -557,7 +574,7 @@ private Q_SLOTS:
 
     void decisionUsesCardActions()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         app::notify::Options options;
         options.presentation = app::notify::Presentation::Decision;
         options.title = u"Choose"_s;
@@ -576,8 +593,8 @@ private Q_SLOTS:
         auto *message = manager.post(options, this);
         QVERIFY(message);
         connect(message, &app::notify::Notification::finished, this,
-            [&invoked](app::notify::FinishReason reason, const QString &id) {
-                invoked = reason == app::notify::FinishReason::Action && id == u"accept"_s;
+            [&invoked](app::notify::Result reason, const QString &id) {
+                invoked = reason == app::notify::Result::Action && id == u"accept"_s;
             });
         auto *dialog = root->findChild<QObject *>(u"decisionDialog"_s);
         QVERIFY(dialog);
@@ -594,7 +611,7 @@ private Q_SLOTS:
 
     void cardCanBecomeDecisionAndReturn()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         app::notify::Options options;
         options.presentation = app::notify::Presentation::Persistent;
         options.message = u"Recovery"_s;
@@ -621,24 +638,24 @@ private Q_SLOTS:
 
     void hostAcceptsCustomViews()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         QQmlEngine engine;
         QQuickWindow window;
         window.resize(640, 480);
         QQmlComponent component(&engine);
         component.setData(R"(
             import QtQuick
-            import App.Notify as Notify
-            Notify.Host {
+            import App.Notify
+            NotificationHost {
                 id: testHost
-                required property Notify.Manager testManager
+                required property NotificationManager testManager
                 manager: testManager
                 width: 640
                 height: 480
                 notificationDelegate: Component {
                     Rectangle {
                         objectName: "customNotification"
-                        required property Notify.Notification notification
+                        required property Notification notification
                         property string message: notification.message
                         implicitHeight: 30
                     }
@@ -646,7 +663,7 @@ private Q_SLOTS:
                 decisionDelegate: Component {
                     Rectangle {
                         objectName: "customDecision"
-                        property Notify.Notification notification: testHost.manager.currentDecision
+                        property Notification notification: testHost.manager.currentDecision
                         property string message: notification ? notification.message : ""
                         implicitHeight: 40
                     }
@@ -684,7 +701,7 @@ private Q_SLOTS:
 
     void dialogProvidesDefaultContent()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         app::notify::Options options;
         options.presentation = app::notify::Presentation::Decision;
         auto *message = manager.post(options, this);
@@ -693,9 +710,9 @@ private Q_SLOTS:
         QQmlComponent component(&engine);
         component.setData(R"(
             import QtQuick
-            import App.Notify as Notify
-            Notify.Dialog {
-                required property Notify.Notification message
+            import App.Notify
+            NotificationDialog {
+                required property Notification message
                 notification: message
             }
         )",
@@ -709,7 +726,7 @@ private Q_SLOTS:
 
     void playgroundPostsAndReportsCompletion()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         QQmlEngine engine;
         const QDir source(QString::fromUtf8(QT_TESTCASE_SOURCEDIR));
         QQmlComponent component(&engine,
@@ -720,7 +737,9 @@ private Q_SLOTS:
         QVERIFY(root);
         QVERIFY(QMetaObject::invokeMethod(root.data(), "post"));
         QCOMPARE(manager.count(), 1);
-        auto *message = manager.data(manager.index(0), app::notify::Manager::NotificationRole)
+        auto *message = manager
+                            .data(manager.index(0),
+                                app::notify::NotificationManager::NotificationRole)
                             .value<app::notify::Notification *>();
         QVERIFY(message);
         QCOMPARE(message->actions().size(), 3);
@@ -730,7 +749,7 @@ private Q_SLOTS:
 
     void playgroundCustomDecisionHasPaddingAndActions()
     {
-        app::notify::Manager manager;
+        app::notify::NotificationManager manager;
         QQmlEngine engine;
         const QDir source(QString::fromUtf8(QT_TESTCASE_SOURCEDIR));
         QQmlComponent component(&engine,
@@ -790,19 +809,20 @@ private Q_SLOTS:
     }
 
 private:
-    QObject *createHost(QQmlEngine &engine, app::notify::Manager &manager, QQuickWindow &window)
+    QObject *createHost(QQmlEngine &engine, app::notify::NotificationManager &manager,
+        QQuickWindow &window)
     {
         QQmlComponent component(&engine);
         component.setData(R"(
             import QtQuick
-            import App.Notify as Notify
+            import App.Notify
             import App.Controls
 
             Item {
-                required property Notify.Manager manager
+                required property NotificationManager manager
                 width: parent ? parent.width : 0
                 height: parent ? parent.height : 0
-                Notify.Host {
+                NotificationHost {
                     anchors.fill: parent
                     manager: parent.manager
                 }
@@ -818,5 +838,5 @@ private:
     }
 };
 
-QTEST_MAIN(tst_Host)
-#include "tst_Host.moc"
+QTEST_MAIN(tst_NotificationHost)
+#include "tst_NotificationHost.moc"

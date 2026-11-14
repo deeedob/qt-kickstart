@@ -12,7 +12,7 @@ Q_STATIC_LOGGING_CATEGORY(lcSketchbook, "app.sketchbook")
 namespace app::sketchbook {
 
 SketchbookViewModel::SketchbookViewModel(SketchStorage &storage, canvas::CanvasStore &canvas,
-    notify::Manager &notifications, QObject *parent)
+    notify::NotificationManager &notifications, QObject *parent)
     : QObject(parent), m_storage(storage), m_canvas(canvas), m_notifications(notifications)
 {
     connect(&m_storage, &SketchStorage::listed, this, &SketchbookViewModel::onListed);
@@ -335,9 +335,9 @@ void SketchbookViewModel::showSaveError()
         return;
     }
     auto *recovery = m_notifications.post(options, this,
-        [this](notify::FinishReason reason, const QString &action) {
+        [this](notify::Result reason, const QString &action) {
             m_recovery = nullptr;
-            if (reason == notify::FinishReason::Dismissed || action == u"keep"_s)
+            if (reason == notify::Result::Dismissed || action == u"keep"_s)
                 keepEditing();
             else if (action == u"retry"_s)
                 m_storage.retryFailedSaves();

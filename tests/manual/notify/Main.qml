@@ -1,15 +1,15 @@
 pragma ComponentBehavior: Bound
 
 import App.Controls
-import App.Notify as Notify
+import App.Notify
 import QtQuick
 import QtQuick.Layouts
 
 ApplicationWindow {
     id: root
 
-    required property Notify.Manager notifications
-    property Notify.Notification lastNotification: null
+    required property NotificationManager notifications
+    property Notification lastNotification: null
     property string result: qsTr("No notification completed yet.")
 
     width: 720
@@ -18,38 +18,35 @@ ApplicationWindow {
     title: qsTr("Notification playground")
 
     function post(): void {
-        root.lastNotification = root.notifications.post({
-                                                            title: titleField.text,
-                                                            message: messageField.text,
-                                                            severity: severity.currentIndex,
-                                                            presentation: presentation.currentIndex,
-                                                            timeoutMs: timeout.value,
-                                                            actions: includeActions.checked ? [
-                                                                                                  {
-                                                                                                      id: "accept",
-                                                                                                      text: qsTr(
-                                                                                                                "Accept"),
-                                                                                                      enabled: true
-                                                                                                  },
-                                                                                                  {
-                                                                                                      id: "disabled",
-                                                                                                      text: qsTr(
-                                                                                                                "Unavailable"),
-                                                                                                      enabled: false
-                                                                                                  },
-                                                                                                  {
-                                                                                                      id: "cancel",
-                                                                                                      text: qsTr(
-                                                                                                                "Cancel"),
-                                                                                                      enabled: true
-                                                                                                  }
-                                                                                              ] : []
-                                                        }, root, root.completed);
-    }
+    root.lastNotification = root.notifications.post({
+        title: titleField.text,
+        message: messageField.text,
+        severity: severity.currentIndex,
+        presentation: presentation.currentIndex,
+        timeoutMs: timeout.value,
+        actions: includeActions.checked ? [
+                                              {
+                                                  id: "accept",
+                                                  text: qsTr("Accept"),
+                                                  enabled: true
+                                              },
+                                              {
+                                                  id: "disabled",
+                                                  text: qsTr("Unavailable"),
+                                                  enabled: false
+                                              },
+                                              {
+                                                  id: "cancel",
+                                                  text: qsTr("Cancel"),
+                                                  enabled: true
+                                              }
+                                          ] : []
+    }, root, root.completed);
+}
 
     function completed(reason: int, actionId: string): void {
-        root.result = qsTr("Finished: %1, action: %2").arg(reason).arg(actionId);
-    }
+    root.result = qsTr("Finished: %1, action: %2").arg(reason).arg(actionId);
+}
 
     ScrollView {
         anchors.fill: parent
@@ -153,7 +150,7 @@ ApplicationWindow {
         }
     }
 
-    Notify.Host {
+    NotificationHost {
         id: host
         anchors.fill: parent
         manager: root.notifications
@@ -175,7 +172,7 @@ ApplicationWindow {
 
     Component {
         id: customNotification
-        Notify.Card {
+        NotificationCard {
             viewport: ListView.view as Flickable
             width: viewport ? viewport.width - Theme.spacing : implicitWidth
             x: Theme.spacing / 2
@@ -189,100 +186,103 @@ ApplicationWindow {
             id: customView
             objectName: "customDecisionView"
 
-            property Notify.Notification notification: root.notifications.currentDecision
+            property Notification notification: root.notifications.currentDecision
             implicitWidth: 320
             implicitHeight: customColumn.implicitHeight + Theme.spacing * 2
 
             function focusAction(): void {
-                for (let i = 0; i < customActions.count; ++i) {
-                    const action = customActions.itemAt(i);
-                    if (action && action.enabled) {
-                        action.forceActiveFocus();
-                        return;
-                    }
+            for (let i = 0; i < customActions.count; ++i) {
+                const action = customActions.itemAt(i);
+                if (action && action.enabled) {
+                    action.forceActiveFocus();
+                    return;
                 }
-                if (closeButton.visible)
+                }
+                    if (closeButton.visible)
                     closeButton.forceActiveFocus();
-                else
+                    else
                     customView.forceActiveFocus();
-            }
-
-            onActiveFocusChanged: {
-                if (customView.activeFocus)
-                    Qt.callLater(customView.focusAction);
-            }
-            onNotificationChanged: {
-                if (customView.activeFocus)
-                    Qt.callLater(customView.focusAction);
-            }
-            Keys.onEscapePressed: {
-                if (customView.notification)
-                    customView.notification.dismiss();
-            }
-
-            ColumnLayout {
-                id: customColumn
-                objectName: "customDecisionContent"
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.margins: Theme.spacing
-                spacing: Theme.spacing / 2
-
-                Label {
-                    Layout.fillWidth: true
-                    text: customView.notification ? customView.notification.title : ""
-                    font.weight: Font.Bold
-                    wrapMode: Text.Wrap
                 }
-                Label {
-                    Layout.fillWidth: true
-                    text: customView.notification ? customView.notification.message : ""
-                    wrapMode: Text.Wrap
-                }
-                Flow {
-                    Layout.fillWidth: true
-                    spacing: Theme.spacing / 2
 
-                    Repeater {
-                        id: customActions
-                        objectName: "customDecisionActions"
-
-                        model: customView.notification ? customView.notification.actions.length : 0
-
-                        delegate: Button {
-                            required property int index
-                            readonly property bool validAction: customView.notification && index
-                                                                >= 0 && index
-                                                                < customView.notification.actions.length
-
-                            text: validAction ? customView.notification.actions[index].text : ""
-                            enabled: validAction && customView.notification.actions[index].enabled
-                            font.pixelSize: 12
-                            horizontalPadding: Theme.spacing
-                            verticalPadding: Theme.spacing / 3
-                            implicitHeight: 28
-                            implicitWidth: implicitContentWidth + horizontalPadding * 2
-                            onClicked: {
-                                if (validAction)
-                                    customView.notification.choose(
-                                                customView.notification.actions[index].id);
-                            }
-                        }
+                    onActiveFocusChanged: {
+                        if (customView.activeFocus)
+                            Qt.callLater(customView.focusAction);
+                    }
+                    onNotificationChanged: {
+                        if (customView.activeFocus)
+                            Qt.callLater(customView.focusAction);
+                    }
+                    Keys.onEscapePressed: {
+                        if (customView.notification)
+                            customView.notification.dismiss();
                     }
 
-                    Button {
-                        id: closeButton
+                    ColumnLayout {
+                        id: customColumn
+                        objectName: "customDecisionContent"
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.margins: Theme.spacing
+                        spacing: Theme.spacing / 2
 
-                        visible: customActions.count === 0
-                        text: qsTr("Close")
-                        onClicked: {
-                            if (customView.notification)
-                                customView.notification.dismiss();
+                        Label {
+                            Layout.fillWidth: true
+                            text: customView.notification ? customView.notification.title : ""
+                            font.weight: Font.Bold
+                            wrapMode: Text.Wrap
+                        }
+                        Label {
+                            Layout.fillWidth: true
+                            text: customView.notification ? customView.notification.message : ""
+                            wrapMode: Text.Wrap
+                        }
+                        Flow {
+                            Layout.fillWidth: true
+                            spacing: Theme.spacing / 2
+
+                            Repeater {
+                                id: customActions
+                                objectName: "customDecisionActions"
+
+                                model: customView.notification
+                                       ? customView.notification.actions.length : 0
+
+                                delegate: Button {
+                                    required property int index
+                                    readonly property bool validAction: customView.notification
+                                                                        && index >= 0 && index
+                                                                        < customView.notification.actions.length
+
+                                    text: validAction ? customView.notification.actions[index].text :
+                                                        ""
+                                    enabled: validAction
+                                             && customView.notification.actions[index].enabled
+                                    font.pixelSize: 12
+                                    horizontalPadding: Theme.spacing
+                                    verticalPadding: Theme.spacing / 3
+                                    implicitHeight: 28
+                                    implicitWidth: implicitContentWidth + horizontalPadding * 2
+                                    onClicked: {
+                                        if (validAction)
+                                            customView.notification.choose(
+                                                        customView.notification.actions[index].id);
+                                    }
+                                }
+                            }
+
+                            Button {
+                                id: closeButton
+
+                                visible: customActions.count === 0
+                                text: qsTr("Close")
+                                onClicked: {
+                                    if (customView.notification)
+                                        customView.notification.dismiss();
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-    }
-}

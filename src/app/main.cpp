@@ -5,7 +5,7 @@
 #include "LogSession.hpp"
 
 #include <canvas/CanvasStore.hpp>         // demo
-#include <notify/Manager.hpp>
+#include <notify/NotificationManager.hpp>
 #include <sketchbook/SketchStorage.hpp>       // demo
 #include <sketchbook/SketchbookViewModel.hpp> // demo
 
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     qCInfo(lcMain) << "Sketchbook directory:" << sketchDirectory;     // demo
     app::sketchbook::SketchStorage storage(sketchDirectory);           // demo
     app::canvas::CanvasStore canvas;                                  // demo
-    app::notify::Manager notifications;
+    app::notify::NotificationManager notifications;
     app::sketchbook::SketchbookViewModel sketchbook(storage, canvas, notifications); // demo
     QSettings settings;
     app::AppController controller({ .logs = logsDirectory, .licenses = licensesDirectory },

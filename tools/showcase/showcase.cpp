@@ -1,7 +1,7 @@
 #include <BuildInfo.hpp>
 #include <app/AppController.hpp>
 #include <canvas/CanvasStore.hpp>
-#include <notify/Manager.hpp>
+#include <notify/NotificationManager.hpp>
 #include <sketchbook/SketchStorage.hpp>
 #include <sketchbook/SketchbookViewModel.hpp>
 
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
         return 1;
     QSettings settings(temporary.filePath("settings.ini"_L1), QSettings::IniFormat);
     settings.setValue("theme/dark"_L1, false);
-    app::notify::Manager notifications;
+    app::notify::NotificationManager notifications;
     app::AppController controller({ QDir(temporary.path()), QDir(temporary.path()) }, settings,
         notifications);
     controller.setLanguage("en"_L1);

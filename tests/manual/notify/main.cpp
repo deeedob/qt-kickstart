@@ -1,4 +1,4 @@
-#include <notify/Manager.hpp>
+#include <notify/NotificationManager.hpp>
 
 #include <QtCore/QObject>
 #include <QtGui/QGuiApplication>
@@ -9,7 +9,7 @@ using namespace Qt::StringLiterals;
 int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
-    app::notify::Manager notifications;
+    app::notify::NotificationManager notifications;
     QQmlApplicationEngine engine;
     engine.setInitialProperties({
         { "notifications"_L1, QVariant::fromValue(&notifications) },

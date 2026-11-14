@@ -12,7 +12,7 @@
 QT_FORWARD_DECLARE_CLASS(QSettings)
 QT_FORWARD_DECLARE_CLASS(QTranslator)
 namespace app::notify {
-class Manager;
+class NotificationManager;
 }
 
 namespace app {
@@ -61,7 +61,7 @@ public:
     };
 
     explicit AppController(Directories directories, QSettings &settings,
-        app::notify::Manager &notifications, QObject *parent = nullptr);
+        app::notify::NotificationManager &notifications, QObject *parent = nullptr);
     ~AppController() override;
 
     [[nodiscard]] BuildInfo buildDetails() const;
@@ -87,7 +87,7 @@ private:
     QString m_language;
     bool m_darkTheme = false;
     QSettings &m_settings;
-    app::notify::Manager &m_notifications;
+    app::notify::NotificationManager &m_notifications;
     std::unique_ptr<QTranslator> m_translator;
 };
 

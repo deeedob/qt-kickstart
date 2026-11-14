@@ -1,17 +1,14 @@
-set_source_files_properties(SeverityBadge.qml PROPERTIES QT_QML_INTERNAL_TYPE TRUE)
-
 qt_add_qml_module(app_notify
     URI App.Notify
     STATIC
     QML_FILES
-        Card.qml
-        Dialog.qml
-        SeverityBadge.qml
-        Host.qml
+        NotificationCard.qml
+        NotificationDialog.qml
+        NotificationHost.qml
     SOURCES
         Notification.cpp Notification.hpp
-        Namespace.hpp
-        Manager.cpp Manager.hpp
+        NotifyTypes.hpp
+        NotificationManager.cpp NotificationManager.hpp
 )
 target_include_directories(app_notify
     PUBLIC "${PROJECT_SOURCE_DIR}/src"
