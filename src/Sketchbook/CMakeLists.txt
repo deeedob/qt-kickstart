@@ -15,7 +15,7 @@ target_include_directories(app_sketchbook
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 target_link_libraries(app_sketchbook
-    PUBLIC Qt::Qml Qt::QmlModels app_canvas app_notify
+    PUBLIC app_canvas app_notify
     PRIVATE glaze::glaze app_controls
 )
 app_target_defaults(app_sketchbook)

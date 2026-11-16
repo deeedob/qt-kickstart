@@ -51,7 +51,7 @@ qt_add_qml_module(app_controls
         icons/undo-2.svg
         icons/unlink-2.svg
 )
-target_link_libraries(app_controls PRIVATE Qt::Quick Qt::QuickControls2)
+target_link_libraries(app_controls PRIVATE Qt::QuickControls2)
 app_target_defaults(app_controls)
 
 app_add_notice(inter-font fonts/LICENSE.txt)

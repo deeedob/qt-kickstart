@@ -18,6 +18,10 @@ target_link_libraries(app_canvas
 
 :::
 
+Here, `app_canvas` exposes `Qt::Quick` and `Shapes::Shapes` because its headers use their
+types. Consumers inherit those dependencies; they do not need to repeat them. The controls
+module stays private because it supplies the feature's QML implementation.
+
 ## Presets name working configurations {#sec-presets}
 
 A preset captures a configuration once. A workflow chains configure, build, and test. Use the

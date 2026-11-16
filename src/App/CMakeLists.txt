@@ -4,7 +4,7 @@ qt_add_library(app_support STATIC
 app_add_build_info(app_support)
 target_include_directories(app_support PUBLIC "${PROJECT_SOURCE_DIR}/src")
 target_link_libraries(app_support
-    PUBLIC Qt::Core Qt::Qml
+    PUBLIC Qt::QmlIntegration
     PRIVATE cpptrace::cpptrace
 )
 app_target_defaults(app_support)
@@ -52,14 +52,10 @@ qt_add_translations(app_ui
 )
 
 target_link_libraries(app PRIVATE
-    Qt::Gui
-    Qt::Quick
     # Nothing calls QtSvg directly, but the deploy tool only ships the SVG icon plugin with it.
     Qt::Svg
-    app_support
     app_ui
     app_uiplugin
-    # Static QML modules are registered by linking their plugins.
     app_controlsplugin
     app_notify
     app_notifyplugin

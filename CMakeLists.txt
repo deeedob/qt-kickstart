@@ -29,7 +29,7 @@ include(Packaging)
 
 app_configure_qt_source()
 find_package(Qt6 6.12 COMPONENTS
-    Core Gui Qml QmlModels Quick QuickControls2 Concurrent Svg LinguistTools
+    Core Gui Qml Quick QuickControls2 Svg LinguistTools
 )
 if(NOT Qt6_FOUND)
     message(FATAL_ERROR
