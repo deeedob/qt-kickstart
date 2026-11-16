@@ -12,7 +12,7 @@ public Q_SLOTS:
     {
         const QDir source(QString::fromUtf8(QUICK_TEST_SOURCE_DIR));
         const int fontId = QFontDatabase::addApplicationFont(
-            source.filePath(QStringLiteral("../../src/controls/fonts/InterVariable.ttf")));
+            source.filePath(QStringLiteral("../../src/Controls/fonts/InterVariable.ttf")));
         if (fontId < 0)
             qFatal("Cannot load the test font");
         QGuiApplication::setFont(

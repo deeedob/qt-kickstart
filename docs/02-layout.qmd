@@ -22,7 +22,7 @@ qt-kickstart/
 ```
 
 Pitchfork distinguishes a single `src/` layout from a `libs/` layout. This project combines
-them: `src/` holds the app, while `libs/shapes/` can stand alone with its own tests.
+them: `src/` holds the app, while `libs/Shapes/` can stand alone with its own tests.
 
 ## Public API is a promise {#sec-include-dirs}
 
@@ -35,11 +35,11 @@ changing it can require them to update or rebuild their code. A distributed bina
 may also promise that existing compiled consumers continue to work. Keep implementation
 details private so that promise covers only what consumers actually need.
 
-::: {.snippet source="libs/shapes/CMakeLists.txt"}
+::: {.snippet source="libs/Shapes/CMakeLists.txt"}
 
 ```cmake
 add_library(shapes STATIC)
-        FILES include/shapes/Recognizer.h\n)
+        FILES include/Shapes/Recognizer.h\n)
 ```
 
 :::
@@ -47,14 +47,14 @@ add_library(shapes STATIC)
 A feature inside one application does not need to pretend it is a library. Keep its QML and
 C++ together until another application needs the code.
 
-The extra `shapes/` directory in the public include path makes `#include <shapes/Recognizer.h>`
+The extra `Shapes/` directory in the public include path makes `#include <Shapes/Recognizer.h>`
 identify its library and avoids collisions with another library's `Recognizer.h`. Private
 headers remain implementation details, but a directory layout alone cannot prevent someone
 from reaching into them. The build's target dependencies support the boundary.
 
 ## Names make ownership clear {#sec-namespaces}
 
-Put library code in the library namespace and application code in `app::<feature>`. Namespaces
+Put library code in the library namespace and application code in `App::<Feature>`. Namespaces
 stop collisions and make an unfamiliar type easier to place. Keep helpers in an unnamed
 namespace in a `.cpp` file. Never put `using namespace` in a header.
 
@@ -104,5 +104,5 @@ you make a real binary-compatibility promise.
 :::
 
 ::: {.more}
-**Template:** `libs/shapes/`, `src/canvas/`, and `tests/canvas/`
+**Template:** `libs/Shapes/`, `src/Canvas/`, and `tests/Canvas/`
 :::

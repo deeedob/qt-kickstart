@@ -145,7 +145,7 @@ Terminal=false
 ]] @ONLY)
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${APP_BUNDLE_ID}.desktop"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
-    install(FILES "${PROJECT_SOURCE_DIR}/src/app/app.svg"
+    install(FILES "${PROJECT_SOURCE_DIR}/src/App/app.svg"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps"
         RENAME "${APP_BUNDLE_ID}.svg")
     set(script [[

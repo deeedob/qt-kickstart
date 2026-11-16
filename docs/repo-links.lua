@@ -1,4 +1,4 @@
--- Turns repository paths in `.more` lines, such as `src/app/main.cpp`, into links to that
+-- Turns repository paths in `.more` lines, such as `src/App/main.cpp`, into links to that
 -- file on GitHub. Only paths that exist in the repository become links.
 
 local repoUrl

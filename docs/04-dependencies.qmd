@@ -20,7 +20,7 @@ find_package(glaze CONFIG REQUIRED) # demo
 Finding a package makes its imported target available. Sketchbook links the imported
 `glaze::glaze` target privately into the sketchbook feature:
 
-::: {.snippet source="src/sketchbook/CMakeLists.txt"}
+::: {.snippet source="src/Sketchbook/CMakeLists.txt"}
 
 ```cmake
 target_link_libraries(app_sketchbook

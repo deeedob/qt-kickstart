@@ -8,7 +8,7 @@ user action to C++, and let the binding update the view later.
 A binding is a live relationship, not an assignment. Sketchbook disables Undo from C++ state
 and sends the action back to the store.
 
-::: {.snippet source="src/canvas/CanvasPage.qml"}
+::: {.snippet source="src/Canvas/CanvasPage.qml"}
 
 ```qml
                 ToolButton {\n                    icon.source: Theme.icon("undo-2")
@@ -29,7 +29,7 @@ signals. This makes missing wiring a load-time error instead of a surprising run
 For example, `CanvasPage` defines a `Swatch` with a required color and a `picked` signal. The
 parent decides what a picked color means; the swatch only handles its own presentation and input.
 
-::: {.snippet source="src/canvas/CanvasPage.qml"}
+::: {.snippet source="src/Canvas/CanvasPage.qml"}
 
 ```qml
     component Swatch: AbstractButton {
@@ -51,7 +51,7 @@ position and delegates instead of rebuilding everything.
 The sketchbook model exposes roles such as `name` and `strokeCount`. A delegate declares the
 roles it needs as required properties. This adapted example keeps the list and its delegate,
 but leaves out the extra row controls in the real
-[SketchbookPage.qml](https://github.com/deeedob/qt-kickstart/blob/main/src/sketchbook/SketchbookPage.qml):
+[SketchbookPage.qml](https://github.com/deeedob/qt-kickstart/blob/main/src/Sketchbook/SketchbookPage.qml):
 
 ```qml
 ListView {
@@ -69,7 +69,7 @@ ListView {
 When a sketch is added, the C++ model announces the insertion before and after changing its
 data. The view can then create just the new delegate:
 
-::: {.snippet source="src/sketchbook/SketchListModel.cpp"}
+::: {.snippet source="src/Sketchbook/SketchListModel.cpp"}
 
 ```cpp
 void SketchListModel::prepend
@@ -90,7 +90,7 @@ layout negotiation. Choose the smallest mechanism that expresses the intended re
 and avoid assigning geometry that a layout already controls.
 
 ::: {.more}
-**Template:** `src/canvas/CanvasPage.qml` and `src/sketchbook/SketchListModel.cpp`
+**Template:** `src/Canvas/CanvasPage.qml` and `src/Sketchbook/SketchListModel.cpp`
 
 **Read more:** [QML coding conventions](https://doc.qt.io/qt-6/qml-codingconventions.html).
 :::

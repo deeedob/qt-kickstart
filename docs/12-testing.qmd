@@ -15,7 +15,7 @@ Test a plain C++ library with Qt Test or another C++ framework. It is fast and h
 
 Sketchbook uses Catch2 for its recognizer. This test checks that a template recognizes itself:
 
-::: {.snippet source="libs/shapes/tests/tst_Recognizer.cpp"}
+::: {.snippet source="libs/Shapes/tests/tst_Recognizer.cpp"}
 
 ```cpp
 TEST_CASE("A template matches itself perfectly")
@@ -32,7 +32,7 @@ directory and checks the result exactly as the view would.
 `QTemporaryDir` gives a test its own file space. `QSignalSpy` records signal emissions, so a
 test can check both the resulting state and whether an observer was notified.
 
-::: {.snippet source="tests/sketchbook/tst_SketchbookViewModel.cpp"}
+::: {.snippet source="tests/Sketchbook/tst_SketchbookViewModel.cpp"}
 
 ```cpp
     void createAddsAndOpensAnEmptySketch()
@@ -46,7 +46,7 @@ test can check both the resulting state and whether an observer was notified.
 Test visual input and component behaviour with Qt Quick Test. The test still creates a window;
 the offscreen platform lets CI run it without a physical display.
 
-::: {.snippet source="tests/canvas/tst_StrokeItem.qml"}
+::: {.snippet source="tests/Canvas/tst_StrokeItem.qml"}
 
 ```qml
     function test_dragReportsTheDrawnPoints(): void {
@@ -64,7 +64,7 @@ the offscreen platform lets CI run it without a physical display.
 
 Test plain C++ without a GUI. Sketchbook uses Catch2 for its recognizer:
 
-::: {.snippet source="libs/shapes/tests/tst_Recognizer.cpp"}
+::: {.snippet source="libs/Shapes/tests/tst_Recognizer.cpp"}
 
 ```cpp
 TEST_CASE("A template matches itself perfectly")
@@ -78,7 +78,7 @@ TEST_CASE("A template matches itself perfectly")
 Test QObject state, signals, and file behaviour with Qt Test. Use a temporary directory and
 `QSignalSpy` to record emissions while checking the resulting state.
 
-::: {.snippet source="tests/sketchbook/tst_SketchbookViewModel.cpp"}
+::: {.snippet source="tests/Sketchbook/tst_SketchbookViewModel.cpp"}
 
 ```cpp
     void createAddsAndOpensAnEmptySketch()
@@ -92,7 +92,7 @@ Test QObject state, signals, and file behaviour with Qt Test. Use a temporary di
 Test visual input and component behaviour with Qt Quick Test. The offscreen platform supplies
 a window without requiring a physical display in CI.
 
-::: {.snippet source="tests/canvas/tst_StrokeItem.qml"}
+::: {.snippet source="tests/Canvas/tst_StrokeItem.qml"}
 
 ```qml
     function test_dragReportsTheDrawnPoints(): void {
@@ -120,7 +120,7 @@ A model must pair every data mutation with correct begin and end signals. Add
 change.
 
 ::: {.more}
-**Template:** `tests/sketchbook/`, `tests/canvas/`, and `libs/shapes/tests/`
+**Template:** `tests/Sketchbook/`, `tests/Canvas/`, and `libs/Shapes/tests/`
 
 **Read more:** [Qt Test](https://doc.qt.io/qt-6/qtest-overview.html) and
 [Qt Quick Test](https://doc.qt.io/qt-6/qtquicktest-index.html).

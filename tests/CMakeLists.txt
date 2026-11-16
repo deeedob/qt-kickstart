@@ -10,7 +10,7 @@ function(app_add_qt_test name)
     target_link_libraries(${name} PRIVATE Qt::Test ${arg_LIBRARIES})
     app_target_defaults(${name})
     add_test(NAME ${name} COMMAND ${name})
-    set_tests_properties(${name} PROPERTIES ENVIRONMENT "QT_QPA_FONTDIR=${PROJECT_SOURCE_DIR}/src/controls/fonts")
+    set_tests_properties(${name} PROPERTIES ENVIRONMENT "QT_QPA_FONTDIR=${PROJECT_SOURCE_DIR}/src/Controls/fonts")
 endfunction()
 
 # Static QML modules register only when their plugin is linked: pass the *plugin targets.
@@ -21,14 +21,14 @@ function(app_add_quick_test name)
     target_link_libraries(${name} PRIVATE Qt::QuickTest ${arg_LIBRARIES})
     app_target_defaults(${name})
     add_test(NAME ${name} COMMAND ${name})
-    set_tests_properties(${name} PROPERTIES ENVIRONMENT "QT_QPA_FONTDIR=${PROJECT_SOURCE_DIR}/src/controls/fonts")
+    set_tests_properties(${name} PROPERTIES ENVIRONMENT "QT_QPA_FONTDIR=${PROJECT_SOURCE_DIR}/src/Controls/fonts")
 endfunction()
 
-add_subdirectory(app)
-add_subdirectory(notify)
-add_subdirectory(canvas) # demo
-add_subdirectory(sketchbook) # demo
-add_subdirectory(controls)
+add_subdirectory(App)
+add_subdirectory(Notify)
+add_subdirectory(Canvas) # demo
+add_subdirectory(Sketchbook) # demo
+add_subdirectory(Controls)
 
-add_subdirectory(manual/notify)
-add_subdirectory(manual/showcase) # demo
+add_subdirectory(manual/Notify)
+add_subdirectory(manual/Showcase) # demo

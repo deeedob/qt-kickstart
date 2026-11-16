@@ -38,13 +38,13 @@ feedback without interrupting the user, or ask for a decision when the work cann
 without one. Use notifications for events that matter to the user; routine background work
 usually needs no message.
 
-Sketchbook uses `app::notify::NotificationManager` for feedback from C++. For example, moving
+Sketchbook uses `App::Notify::NotificationManager` for feedback from C++. For example, moving
 through the drawing history posts a short message:
 
-::: {.snippet source="src/sketchbook/SketchbookViewModel.cpp"}
+::: {.snippet source="src/Sketchbook/SketchbookViewModel.cpp"}
 
 ```cpp
-    connect(&m_canvas, &canvas::CanvasStore::historyMoved
+    connect(&m_canvas, &Canvas::CanvasStore::historyMoved
     });\n    m_storage.list();
 ```
 
@@ -78,7 +78,7 @@ NotificationHost {
 }
 ```
 
-C++ uses `app::notify::Severity::Warning`; QML uses `Notify.Severity.Warning`.
+C++ uses `App::Notify::Severity::Warning`; QML uses `Notify.Severity.Warning`.
 `NotifyTypes.hpp` groups the enums and the `Options` and `Action`
 value types. The `Notify` QML namespace exposes the C++ enums directly. Structured
 values use `options` and `action` in QML.
@@ -98,7 +98,7 @@ Build and run the manual notification test to exercise the API and compare custo
 
 ```sh
 cmake --build --preset dev --target man_notify
-build/dev/tests/manual/notify/man_notify
+build/dev/tests/manual/Notify/man_notify
 ```
 
 The target requires `BUILD_TESTING` and is excluded from the default build and CTest.
@@ -131,7 +131,7 @@ snapshots share the point data instead of copying every stroke. The history has 
 The reducer handles the different action types in one place. It receives a sketch by value,
 applies the action to that copy, and returns the result:
 
-::: {.snippet source="src/canvas/CanvasStore.cpp"}
+::: {.snippet source="src/Canvas/CanvasStore.cpp"}
 
 ```cpp
 [[nodiscard]] Sketch reduce(Sketch sketch, const Action &action)
@@ -140,14 +140,14 @@ applies the action to that copy, and returns the result:
 
 :::
 
-`std::visit` selects the handler for the action held in the variant. For example, `AddStroke`
-appends a stroke to the copied sketch, while `Clear` removes its strokes. The function returns
+`std::visit` selects the handler for the action held in the variant. For example, `Actions::AddStroke`
+appends a stroke to the copied sketch, while `Actions::Clear` removes its strokes. The function returns
 that next state without modifying the stored snapshot.
 
 The store decides whether the resulting state belongs in history. A new edit drops states
 after the current position, so redo no longer leads to a discarded branch:
 
-::: {.snippet source="src/canvas/CanvasStore.cpp"}
+::: {.snippet source="src/Canvas/CanvasStore.cpp"}
 
 ```cpp
 void CanvasStore::dispatch(Sketch next)
@@ -163,7 +163,7 @@ check removes the oldest snapshot when the history reaches its limit.
 Undo does not create another action or reverse a stroke. It moves to the previous snapshot;
 `moveTo()` updates the current position and emits the notifications views and storage need.
 
-::: {.snippet source="src/canvas/CanvasStore.cpp"}
+::: {.snippet source="src/Canvas/CanvasStore.cpp"}
 
 ```cpp
 void CanvasStore::undo()
@@ -189,5 +189,5 @@ different history representation. Mixing patterns by feature is fine: Sketchbook
 for its list and Flux for the canvas.
 
 ::: {.more}
-**Template:** `src/canvas/CanvasStore.hpp` and `src/sketchbook/SketchbookViewModel.hpp`
+**Template:** `src/Canvas/CanvasStore.hpp` and `src/Sketchbook/SketchbookViewModel.hpp`
 :::

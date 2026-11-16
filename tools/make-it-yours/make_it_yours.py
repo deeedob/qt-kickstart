@@ -21,7 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 
-DEMO_FOLDERS = ["libs/shapes", "src/canvas", "src/sketchbook", "tests/canvas", "tests/sketchbook", "tests/manual/showcase"]
+DEMO_FOLDERS = ["libs/Shapes", "src/Canvas", "src/Sketchbook", "tests/Canvas", "tests/Sketchbook", "tests/manual/Showcase"]
 DEMO_DEPENDENCIES = ["glaze"]
 GUIDE_PATHS = ["docs", ".github/workflows/docs.yml"]
 SOURCE_SUFFIXES = {".cpp", ".hpp", ".h", ".qml", ".js", ".cmake", ".in"}
@@ -188,13 +188,13 @@ def remove_guide(display_name):
 
 
 def rename_prefix(prefix):
-    namespace = prefix.lower()
     rules = [
         (r"\bApp\.", f"{prefix}."),
         (r'"App"', f'"{prefix}"'),
         (r"\bURI App\b", f"URI {prefix}"),
-        (r"\bapp::", f"{namespace}::"),
-        (r"\bnamespace app\b", f"namespace {namespace}"),
+        (r"\bApp::", f"{prefix}::"),
+        (r"\bnamespace App\b", f"namespace {prefix}"),
+        (r"\bApp/Gen/", f"{prefix}/Gen/"),
     ]
     folders = ("src", "tests", "libs", "cmake", "tools")
     renamed = 0
@@ -223,10 +223,10 @@ def collect_plan():
     description = ask("One-line description", display_name, r'[^"\\$;]+',
                       "No quotes, backslashes, dollar signs or semicolons.")
     holder = ask("Copyright holder", (git("config", "user.name") or "").strip())
-    prefix = ask("QML prefix (App); the C++ namespace becomes its lower case", "App",
+    prefix = ask("QML prefix and C++ namespace", "App",
                  r"[A-Z][A-Za-z0-9]*", "Start with an upper-case letter, then letters or digits.")
     return Plan(name, display_name, bundle_id, description, holder, prefix,
-                remove_demo=confirm("Remove the demo app (canvas, sketchbook, libs/shapes)?"),
+                remove_demo=confirm("Remove the demo app (canvas, sketchbook, libs/Shapes)?"),
                 remove_guide=confirm("Remove the guide (docs/) and start a new README?"),
                 remove_script=confirm("Delete this script when done?"))
 
@@ -236,7 +236,7 @@ def print_plan(plan):
     print(f"  project {plan.name}, shown as \"{plan.display_name}\", bundle id {plan.bundle_id}")
     print(f"  copyright {datetime.date.today().year} {plan.holder} in LICENSE and REUSE.toml")
     if plan.prefix != "App":
-        print(f"  rename App to {plan.prefix} in QML and app:: to {plan.prefix.lower()}:: in C++")
+        print(f"  rename App to {plan.prefix} in QML, C++ namespaces, and generated include paths")
     if plan.remove_demo:
         print(f"  remove {', '.join(DEMO_FOLDERS)}, the marked demo lines, and {', '.join(DEMO_DEPENDENCIES)}")
     if plan.remove_guide:
@@ -247,7 +247,7 @@ def print_plan(plan):
 
 def apply(plan):
     set_identity(plan)
-    strip_marked(ROOT / "src/app/AboutDialog.qml", "template:begin", "template:end")
+    strip_marked(ROOT / "src/App/AboutDialog.qml", "template:begin", "template:end")
     if plan.remove_demo:
         print(f"Removed the demo ({remove_demo()} marked lines and blocks).")
     if plan.remove_guide:

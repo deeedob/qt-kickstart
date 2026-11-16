@@ -35,7 +35,7 @@ a theme choice, and ordinary files for documents users create.
 Write through `QSaveFile`: Qt commits the finished temporary file in place. A crash or full
 disk leaves the previous file intact instead of leaving half a document.
 
-::: {.snippet source="src/sketchbook/SketchStorage.cpp"}
+::: {.snippet source="src/Sketchbook/SketchStorage.cpp"}
 
 ```cpp
         QSaveFile file(path);
@@ -63,7 +63,7 @@ clear privacy policy and a user choice.
 :::
 
 ::: {.more}
-**Template:** `src/app/LogSession.cpp` and `src/sketchbook/SketchStorage.cpp`
+**Template:** `src/App/LogSession.cpp` and `src/Sketchbook/SketchStorage.cpp`
 
 **Read more:** [QSaveFile](https://doc.qt.io/qt-6/qsavefile.html) and
 [QStandardPaths](https://doc.qt.io/qt-6/qstandardpaths.html).

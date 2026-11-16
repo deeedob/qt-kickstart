@@ -9,7 +9,7 @@ A target owns its sources, compile settings, and dependencies. `PUBLIC` means a 
 needs the dependency to use your headers. `PRIVATE` means only the implementation needs it.
 That small rule keeps build dependencies honest.
 
-::: {.snippet source="src/canvas/CMakeLists.txt"}
+::: {.snippet source="src/Canvas/CMakeLists.txt"}
 
 ```cmake
 target_link_libraries(app_canvas
@@ -122,11 +122,11 @@ target_link_libraries(app PRIVATE Qt::Quick)
   resources and tooling information. See @sec-qml-modules for how that module reaches a view.
 
 In the template, `qt_standard_project_setup()` is in the top-level `CMakeLists.txt`,
-`qt_add_executable()` is in `src/app/CMakeLists.txt`, and each feature has its own QML
+`qt_add_executable()` is in `src/App/CMakeLists.txt`, and each feature has its own QML
 module. The static modules and their plugins are linked into the application.
 
 ::: {.more}
-**Template:** `CMakeLists.txt`, `src/app/CMakeLists.txt`, `src/canvas/CMakeLists.txt`
+**Template:** `CMakeLists.txt`, `src/App/CMakeLists.txt`, `src/Canvas/CMakeLists.txt`
 
 **Read more:** [Qt standard project setup](https://doc.qt.io/qt-6/qt-standard-project-setup.html),
 [Qt executable targets](https://doc.qt.io/qt-6/qt-add-executable.html), and

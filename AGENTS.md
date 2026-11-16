@@ -45,8 +45,8 @@ Report missing tools, skipped checks and warnings. Warnings are errors for proje
 ```
 libs/<name>/          separable library: include/<name>/ (public .h), src/, tests/
 src/<feature>/        one folder and one QML module per feature: C++ and QML together
-src/controls/         the Qt Quick Controls style (QML module App.Controls) and Theme tokens
-src/app/              the executable: main.cpp creates and wires every long-lived object
+src/Controls/         the Qt Quick Controls style (QML module App.Controls) and Theme tokens
+src/App/              the executable: main.cpp creates and wires every long-lived object
 tests/<feature>/      tests for src/, mirroring its folders
 cmake/                build helpers: app_target_defaults(), app_add_notice(), checks
 i18n/                 translations (.ts)
@@ -68,7 +68,7 @@ external/vcpkg/       vcpkg as a git submodule: never edit
 
 ## C++
 
-- Namespaces: `app::<feature>` in `src/`, the library's name in `libs/` (`<name>::`). File-local
+- Namespaces: `App::<Feature>` in `src/`, the library's name in `libs/` (`<Name>::`). File-local
   helpers go into an unnamed namespace. No `using namespace` at file scope in headers.
 - One class per file, named after it. `.h` for public headers of `libs/`, `.hpp` for the rest.
   Include Qt by module: `#include <QtCore/QObject>`.
@@ -81,7 +81,7 @@ external/vcpkg/       vcpkg as a git submodule: never edit
   `connect()` to a lambda takes a context object, `open()` results are checked, no `QPair`
   (`std::pair`), and each file includes the Qt headers it uses.
 - Every `Q_PROPERTY` has `NOTIFY` (or `CONSTANT`) and `FINAL`. In `Q_PROPERTY`, signals and
-  `Q_INVOKABLE`s, spell types fully qualified (`app::<feature>::Type *`).
+  `Q_INVOKABLE`s, spell types fully qualified (`App::<Feature>::Type *`).
 - Ownership: parent/child for QObjects, values or `std::unique_ptr` for the rest. A `QObject *`
   returned from a `Q_INVOKABLE` belongs to QML unless it has a parent.
 - Never touch a QObject from another thread. Hand work off with `QtConcurrent` and return
@@ -137,7 +137,7 @@ external/vcpkg/       vcpkg as a git submodule: never edit
 
 - A feature: `src/<feature>/` with `qt_add_qml_module(app_<feature> URI App.<Feature> STATIC
   ...)` and `app_target_defaults(app_<feature>)`, `add_subdirectory()` in `src/CMakeLists.txt`,
-  link `app_<feature>` and `app_<feature>plugin` in `src/app/CMakeLists.txt`, tests in
+  link `app_<feature>` and `app_<feature>plugin` in `src/App/CMakeLists.txt`, tests in
   `tests/<feature>/`.
 - A dependency: add the port to `vcpkg.json`, `find_package(... CONFIG REQUIRED)` in the
   top-level `CMakeLists.txt`.

@@ -44,13 +44,12 @@ qt_standard_project_setup(REQUIRES 6.12
     I18N_SOURCE_LANGUAGE en
     I18N_TRANSLATED_LANGUAGES de es
 )
-# One QML import root in the build tree: source folders stay lowercase, URIs stay PascalCase.
 set(QT_QML_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/qml")
 
 find_package(cpptrace CONFIG REQUIRED)
 find_package(glaze CONFIG REQUIRED) # demo
 
-add_subdirectory(libs/shapes) # demo
+add_subdirectory(libs/Shapes) # demo
 add_subdirectory(tools/icon-generator)
 add_subdirectory(src)
 if(BUILD_TESTING)

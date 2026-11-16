@@ -49,14 +49,14 @@ In that example:
 - `contentItem` controls what appears inside the button; `control.text` comes from the caller.
 - `background` draws the button using the shared theme and the control's current state.
 
-The real [Button.qml](https://github.com/deeedob/qt-kickstart/blob/main/src/controls/style/Button.qml)
+The real [Button.qml](https://github.com/deeedob/qt-kickstart/blob/main/src/Controls/style/Button.qml)
 also handles icons, flat buttons, and the disabled state. The application uses its own
 `Button` wherever a view imports `App.Controls`.
 
 You do not need to redraw every control. Sketchbook's switch extends the Basic style and
 changes its palette:
 
-::: {.snippet source="src/controls/style/Switch.qml"}
+::: {.snippet source="src/Controls/style/Switch.qml"}
 
 ```qml
 import QtQuick.Controls.Basic as Basic
@@ -70,7 +70,7 @@ same control follows the rest of the application when the theme changes.
 
 The controls module imports `QtQuick.Controls.Basic` as its fallback, so controls the app
 does not define still have an implementation. The following **adapted example** shows the
-module's essential shape; the actual [CMakeLists.txt](https://github.com/deeedob/qt-kickstart/blob/main/src/controls/CMakeLists.txt)
+module's essential shape; the actual [CMakeLists.txt](https://github.com/deeedob/qt-kickstart/blob/main/src/Controls/CMakeLists.txt)
 also lists the other controls, assets, and licenses:
 
 ```cmake
@@ -110,8 +110,8 @@ value. This keeps a theme change in one place.
 
 `Theme.qml` defines the tokens as a QML singleton. The module marks it with
 `QT_QML_SINGLETON_TYPE` before `qt_add_qml_module()`; `pragma Singleton` alone does not
-complete the CMake registration. See the actual [Theme.qml](https://github.com/deeedob/qt-kickstart/blob/main/src/controls/Theme.qml)
-and [controls module](https://github.com/deeedob/qt-kickstart/blob/main/src/controls/CMakeLists.txt).
+complete the CMake registration. See the actual [Theme.qml](https://github.com/deeedob/qt-kickstart/blob/main/src/Controls/Theme.qml)
+and [controls module](https://github.com/deeedob/qt-kickstart/blob/main/src/Controls/CMakeLists.txt).
 
 Sketchbook initializes the saved theme preference from `QSettings`, or from the system color
 scheme when no preference exists. `Main.qml` binds `Theme.dark` to that application state.
@@ -127,8 +127,8 @@ The same canvas in both themes.
 :::
 
 ::: {.more}
-**Template:** `src/controls/style/Button.qml`, `src/controls/style/Switch.qml`,
-`src/controls/style/ApplicationWindow.qml`, `src/controls/Theme.qml`
+**Template:** `src/Controls/style/Button.qml`, `src/Controls/style/Switch.qml`,
+`src/Controls/style/ApplicationWindow.qml`, `src/Controls/Theme.qml`
 
 **Read more:** [Customizing Qt Quick Controls](https://doc.qt.io/qt-6/qtquickcontrols-customize.html)
 and [Styling Qt Quick Controls](https://doc.qt.io/qt-6/qtquickcontrols-styles.html).

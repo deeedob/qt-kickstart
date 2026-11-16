@@ -10,7 +10,7 @@ QML is where a person sees and acts. C++ owns state, rules, files, and work that
 a view. This split helps whenever a UI changes faster than its behaviour. Sketchbook's canvas
 binds a button to C++ state and sends an action back to the store.
 
-::: {.snippet source="src/canvas/CanvasPage.qml"}
+::: {.snippet source="src/Canvas/CanvasPage.qml"}
 
 ```qml
                 ToolButton {\n                    icon.source: Theme.icon("undo-2")
@@ -23,7 +23,7 @@ The store exposes a narrow, typed surface. QML can observe it and call its actio
 does not reach into a sketch or mutate it directly.
 
 The following adapted example keeps only the members used above. The complete class is in
-[CanvasStore.hpp](https://github.com/deeedob/qt-kickstart/blob/main/src/canvas/CanvasStore.hpp).
+[CanvasStore.hpp](https://github.com/deeedob/qt-kickstart/blob/main/src/Canvas/CanvasStore.hpp).
 
 ```cpp
 class CanvasStore : public QObject
@@ -50,7 +50,7 @@ the problem domain. Storage changes with files or services.
 |---|---|---|
 | View | QML, layout, input | `SketchbookPage.qml` |
 | Application | UI-facing state and commands | `SketchbookViewModel` |
-| Core | reusable rules and values | `shapes::Recognizer` |
+| Core | reusable rules and values | `Shapes::Recognizer` |
 | Backend | files, network, devices | `SketchStorage` |
 
 Each lower layer can work without its caller. That is what makes unit tests small and code
@@ -93,7 +93,7 @@ flowchart LR
 The arrows show dependencies between targets, not the order in which signals travel. The
 application connects features; the shape recognizer does not depend on the application.
 
-::: {.snippet source="src/canvas/CMakeLists.txt"}
+::: {.snippet source="src/Canvas/CMakeLists.txt"}
 
 ```cmake
 target_link_libraries(app_canvas
@@ -121,7 +121,7 @@ to QML. Their lifetime and dependencies stay visible, and a test can construct t
 directly. A larger application can put that wiring in an application manager owned by `main()`;
 the important part is keeping the wiring and ownership explicit.
 
-::: {.snippet source="src/app/main.cpp"}
+::: {.snippet source="src/App/main.cpp"}
 
 ```cpp
     const auto sketchDirectory
@@ -131,7 +131,7 @@ the important part is keeping the wiring and ownership explicit.
 :::
 
 ::: {.more}
-**Template:** `src/app/main.cpp`, `src/canvas/CanvasStore.hpp`, and `src/canvas/CanvasPage.qml`
+**Template:** `src/App/main.cpp`, `src/Canvas/CanvasStore.hpp`, and `src/Canvas/CanvasPage.qml`
 
 **Read more:** [Qt Quick best practices](https://doc.qt.io/qt-6/qtquick-bestpractices.html)
 :::

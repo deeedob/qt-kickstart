@@ -1,0 +1,22 @@
+# Drawing, as a Flux store, with the custom scene graph item that renders the strokes.
+
+qt_add_qml_module(app_canvas
+    URI App.Canvas
+    STATIC
+    QML_FILES
+        CanvasPage.qml
+        CanvasSettings.qml
+    SOURCES
+        CanvasStore.cpp CanvasStore.hpp
+        CanvasTypes.hpp
+        StrokeItem.cpp StrokeItem.hpp
+)
+target_include_directories(app_canvas
+    PUBLIC "${PROJECT_SOURCE_DIR}/src"
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+target_link_libraries(app_canvas
+    PUBLIC Qt::Quick Shapes::Shapes
+    PRIVATE app_controls
+)
+app_target_defaults(app_canvas)

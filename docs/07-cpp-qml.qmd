@@ -14,7 +14,7 @@ The module URI is the name QML imports. A class registered with `QML_ELEMENT` or
 module private to one executable; its plugin must be linked as well as the backing library,
 or the module's registration can be missing at runtime.
 
-::: {.snippet source="src/app/CMakeLists.txt"}
+::: {.snippet source="src/App/CMakeLists.txt"}
 
 ```cmake
 qt_add_qml_module(app_ui
@@ -50,7 +50,7 @@ By contrast, a helper that belongs to one view can be a creatable QML type. QML 
 and owns an instance for that view. Shared stores and services usually need a longer, explicit
 lifetime, which is why the template creates them in `main()`.
 
-::: {.snippet source="src/app/main.cpp"}
+::: {.snippet source="src/App/main.cpp"}
 
 ```cpp
     engine.setInitialProperties({
@@ -71,10 +71,10 @@ Sketchbook also exposes canvas enums through a registered namespace: `Q_NAMESPAC
 properties. Precise change signals tell the view which rows to update.
 
 This adapted declaration exposes canvas values in
-[CanvasTypes.hpp](https://github.com/deeedob/qt-kickstart/blob/main/src/canvas/CanvasTypes.hpp):
+[CanvasTypes.hpp](https://github.com/deeedob/qt-kickstart/blob/main/src/Canvas/CanvasTypes.hpp):
 
 ```cpp
-namespace app::canvas {
+namespace App::Canvas {
 Q_NAMESPACE
 QML_NAMED_ELEMENT(Canvas)
 
@@ -89,7 +89,7 @@ can generate its type information.
 
 `SketchListModel::roleNames()` connects the C++ roles to the names QML delegates request:
 
-::: {.snippet source="src/sketchbook/SketchListModel.cpp"}
+::: {.snippet source="src/Sketchbook/SketchListModel.cpp"}
 
 ```cpp
 QHash<int, QByteArray> SketchListModel::roleNames() const
@@ -149,7 +149,7 @@ and [C++ and QML ownership](https://doc.qt.io/qt-6/qtqml-cppintegration-data.htm
 :::
 
 ::: {.more}
-**Template:** `src/app/main.cpp`, `src/app/CMakeLists.txt`, and `src/canvas/CanvasStore.hpp`
+**Template:** `src/App/main.cpp`, `src/App/CMakeLists.txt`, and `src/Canvas/CanvasStore.hpp`
 
 **Read more:** [Defining QML types from C++](https://doc.qt.io/qt-6/qtqml-cppintegration-definetypes.html).
 :::

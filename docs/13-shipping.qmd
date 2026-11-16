@@ -20,7 +20,7 @@ step knows its own DLLs; the install rules also copy other runtime DLLs required
 Qt plugins load at runtime, so a missing platform plugin may only become visible on a clean
 machine.
 
-::: {.snippet source="src/app/CMakeLists.txt"}
+::: {.snippet source="src/App/CMakeLists.txt"}
 
 ```cmake
 install(TARGETS app
@@ -31,7 +31,7 @@ install(TARGETS app
 
 The template generates and installs Qt's deployment script:
 
-::: {.snippet source="src/app/CMakeLists.txt"}
+::: {.snippet source="src/App/CMakeLists.txt"}
 
 ```cmake
 qt_generate_deploy_qml_app_script(
@@ -131,7 +131,7 @@ On macOS that path is an internal link to `Contents/Resources/licenses`, where r
 belong for code signing.
 
 ::: {.more}
-**Template:** `src/app/CMakeLists.txt`, `cmake/Packaging.cmake`, and
+**Template:** `src/App/CMakeLists.txt`, `cmake/Packaging.cmake`, and
 `.github/workflows/release.yml`
 
 **Read more:** [Qt deployment with CMake](https://doc.qt.io/qt-6/cmake-deployment.html),

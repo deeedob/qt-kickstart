@@ -28,7 +28,7 @@ For example, `CanvasStore` declares `snapShapes` with `READ snapShapes`, `WRITE 
 and `NOTIFY snapShapesChanged`. QML can read or change the property and observe changes. The
 setter shows how the contract works:
 
-::: {.snippet source="src/canvas/CanvasStore.cpp"}
+::: {.snippet source="src/Canvas/CanvasStore.cpp"}
 
 ```cpp
 void CanvasStore::setSnapShapes(bool snap)
@@ -91,7 +91,7 @@ Sketchbook has related stateful operations: list, load, save, rename, duplicate,
 must share recovery state and execute in submission order. `SketchStorage` remains a GUI-thread
 facade. It moves a separate worker to one thread and sends commands with queued invocations:
 
-::: {.snippet source="src/sketchbook/SketchStorage.cpp"}
+::: {.snippet source="src/Sketchbook/SketchStorage.cpp"}
 
 ```cpp
 SketchStorage::SketchStorage(QString directory, QObject *parent)
@@ -105,7 +105,7 @@ invocation runs in the worker's thread, so the GUI never calls worker methods di
 facade passes command data by value, and the worker posts results back to the facade through
 queued context-bound invocations.
 
-::: {.snippet source="src/sketchbook/SketchStorage.cpp"}
+::: {.snippet source="src/Sketchbook/SketchStorage.cpp"}
 
 ```cpp
 void SketchStorage::save(const QString &id, SketchDocument document)
@@ -118,7 +118,7 @@ On destruction, the facade queues a stop command after accepted work and joins t
 worker quits its own event loop when it reaches that marker. The `finished` connection schedules
 worker deletion in its affinity thread:
 
-::: {.snippet source="src/sketchbook/SketchStorage.cpp"}
+::: {.snippet source="src/Sketchbook/SketchStorage.cpp"}
 
 ```cpp
 SketchStorage::~SketchStorage()
@@ -136,7 +136,7 @@ signal or a continuation with a GUI-thread context.
 :::
 
 ::: {.more}
-**Template:** `src/sketchbook/SketchStorage.cpp`
+**Template:** `src/Sketchbook/SketchStorage.cpp`
 
 **Read more:** [Threads and QObjects](https://doc.qt.io/qt-6/threads-qobject.html).
 :::

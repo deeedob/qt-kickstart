@@ -56,25 +56,39 @@ class TemplateSetupTest(unittest.TestCase):
         self.assertEqual(plan.display_name, "River Studio")
 
     def test_prefix_includes_showcase(self):
-        showcase = self.copy("tests/manual/showcase/showcase.cpp")
+        showcase = self.copy("tests/manual/Showcase/showcase.cpp")
         self.copy("AGENTS.md")
         setup.rename_prefix("Nova")
         text = showcase.read_text()
         self.assertIn('engine.loadFromModule("Nova", "Main")', text)
-        self.assertNotIn("app::", text)
+        self.assertIn("Nova::Notify::NotificationManager", text)
+        self.assertNotIn("App::", text)
+
+    def test_prefix_preserves_namespace_case_and_generated_include_path(self):
+        source = self.root / "src/App/main.cpp"
+        source.parent.mkdir(parents=True)
+        source.write_text('#include <App/Gen/BuildInfo.hpp>\n'
+                          'namespace App { App::Gen::BuildInfo info; }\n')
+        cmake = self.root / "cmake/BuildInfo.cmake"
+        cmake.parent.mkdir()
+        cmake.write_text('set(header "${generated_dir}/App/Gen/BuildInfo.hpp")\n')
+        setup.rename_prefix("Nova")
+        self.assertIn('#include <Nova/Gen/BuildInfo.hpp>', source.read_text())
+        self.assertIn('namespace Nova { Nova::Gen::BuildInfo info; }', source.read_text())
+        self.assertIn('${generated_dir}/Nova/Gen/BuildInfo.hpp', cmake.read_text())
 
     def test_demo_removal_removes_canvas_links_and_test(self):
-        cmake = self.copy("src/app/CMakeLists.txt")
+        cmake = self.copy("src/App/CMakeLists.txt")
         self.copy("vcpkg.json")
-        self.copy("tests/manual/showcase/showcase.cpp")
+        self.copy("tests/manual/Showcase/showcase.cpp")
         setup.remove_demo()
         self.assertNotIn("app_canvas", cmake.read_text())
         self.assertNotIn("app_sketchbook", cmake.read_text())
-        self.assertFalse((self.root / "tests/canvas").exists())
-        self.assertFalse((self.root / "tests/manual/showcase").exists())
+        self.assertFalse((self.root / "tests/Canvas").exists())
+        self.assertFalse((self.root / "tests/manual/Showcase").exists())
 
     def test_demo_removal_strips_sketchbook_error_state(self):
-        main = self.copy("src/app/Main.qml")
+        main = self.copy("src/App/Main.qml")
         self.copy("vcpkg.json")
         setup.remove_demo()
         text = main.read_text()
@@ -85,9 +99,9 @@ class TemplateSetupTest(unittest.TestCase):
         self.assertIn('NotificationHost {', text)
 
     def test_demo_removal_keeps_notification_injection_and_dependencies(self):
-        main = self.copy("src/app/Main.qml")
-        composition = self.copy("src/app/main.cpp")
-        cmake = self.copy("src/app/CMakeLists.txt")
+        main = self.copy("src/App/Main.qml")
+        composition = self.copy("src/App/main.cpp")
+        cmake = self.copy("src/App/CMakeLists.txt")
         self.copy("vcpkg.json")
         setup.remove_demo()
         self.assertIn('required property NotificationManager notifications', main.read_text())
@@ -98,13 +112,13 @@ class TemplateSetupTest(unittest.TestCase):
     def test_customization_removes_template_about_links(self):
         for path in ("CMakeLists.txt", "LICENSE", "REUSE.toml"):
             self.copy(path)
-        about = self.copy("src/app/AboutDialog.qml")
+        about = self.copy("src/App/AboutDialog.qml")
         setup.apply(self.plan())
         self.assertNotIn("github.com/deeedob/qt-kickstart", about.read_text())
         self.assertNotIn("deeedob.github.io/qt-kickstart", about.read_text())
 
     def test_customization_removes_template_tests_and_cmake_registration(self):
-        for path in ("CMakeLists.txt", "LICENSE", "REUSE.toml", "src/app/AboutDialog.qml"):
+        for path in ("CMakeLists.txt", "LICENSE", "REUSE.toml", "src/App/AboutDialog.qml"):
             self.copy(path)
         test = self.copy("tools/make-it-yours/test_make_it_yours.py")
         cmake = self.copy("tools/make-it-yours/CMakeLists.txt")
@@ -117,7 +131,7 @@ class TemplateSetupTest(unittest.TestCase):
                          (self.root / "CMakeLists.txt").read_text())
 
     def test_customization_removes_script_and_test_registration(self):
-        for path in ("CMakeLists.txt", "LICENSE", "REUSE.toml", "src/app/AboutDialog.qml"):
+        for path in ("CMakeLists.txt", "LICENSE", "REUSE.toml", "src/App/AboutDialog.qml"):
             self.copy(path)
         test = self.copy("tools/make-it-yours/test_make_it_yours.py")
         script = self.copy("tools/make-it-yours/make_it_yours.py")
