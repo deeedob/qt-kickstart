@@ -6,8 +6,11 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <memory>
 #include <numbers>
 #include <ranges>
+#include <string_view>
+#include <variant>
 
 Q_STATIC_LOGGING_CATEGORY(lcCanvas, "app.canvas")
 
@@ -22,13 +25,56 @@ namespace {
     struct NamedShape
     {
         std::string_view name;
-        CanvasStore::Shape shape;
+        Shape shape;
     };
     constexpr std::array Shapes{
-        NamedShape{ .name = "circle",    .shape = CanvasStore::Shape::Circle    },
-        NamedShape{ .name = "rectangle", .shape = CanvasStore::Shape::Rectangle },
-        NamedShape{ .name = "triangle",  .shape = CanvasStore::Shape::Triangle  },
+        NamedShape{ .name = "circle",    .shape = Shape::Circle    },
+        NamedShape{ .name = "rectangle", .shape = Shape::Rectangle },
+        NamedShape{ .name = "triangle",  .shape = Shape::Triangle  },
     };
+
+    namespace action {
+        struct AddStroke
+        {
+            StrokePtr stroke;
+        };
+        struct ReplaceLastStroke
+        {
+            StrokePtr stroke;
+        };
+        struct Clear
+        {
+        };
+        struct SetPage
+        {
+            Page page;
+        };
+    } // namespace action
+
+    using Action = std::variant<action::AddStroke, action::ReplaceLastStroke, action::Clear,
+        action::SetPage>;
+
+    template <typename... Fs>
+    struct Overloaded : Fs...
+    {
+        using Fs::operator()...;
+    };
+
+    [[nodiscard]] Sketch reduce(Sketch sketch, const Action &action)
+    {
+        std::visit(
+            Overloaded{
+                [&](const action::AddStroke &add) { sketch.strokes.push_back(add.stroke); },
+                [&](const action::ReplaceLastStroke &replace) {
+                    if (!sketch.strokes.empty())
+                        sketch.strokes.back() = replace.stroke;
+                },
+                [&](action::Clear) { sketch.strokes.clear(); },
+                [&](const action::SetPage &set) { sketch.page = set.page; },
+            },
+            action);
+        return sketch;
+    }
 
     QRectF bounds(std::span<const shapes::Point> points)
     {
@@ -127,17 +173,17 @@ int CanvasStore::pageHeight() const
     return sketch().page.height;
 }
 
-PaperBackground CanvasStore::paperBackground() const
+Background CanvasStore::background() const
 {
     return sketch().page.background;
 }
 
-int CanvasStore::paperSpacing() const
+int CanvasStore::spacing() const
 {
     return sketch().page.spacing;
 }
 
-int CanvasStore::paperThickness() const
+int CanvasStore::thickness() const
 {
     return sketch().page.thickness;
 }
@@ -168,7 +214,7 @@ void CanvasStore::addStroke(const QList<QPointF> &points, const QColor &color, d
         .color = color.name().toStdString(),
         .width = std::clamp(width, 1.0, 36.0),
     });
-    dispatch(action::AddStroke{ stroke });
+    dispatch(reduce(sketch(), action::AddStroke{ stroke }));
 
     if (!m_snapShapes)
         return;
@@ -176,17 +222,18 @@ void CanvasStore::addStroke(const QList<QPointF> &points, const QColor &color, d
     if (!match || match->score < SnapScore)
         return;
     qCDebug(lcCanvas) << "Snapping to" << match->name << "with score" << match->score;
-    dispatch(action::ReplaceLastStroke{ std::make_shared<const Stroke>(Stroke{
-        .points = idealShape(match->name, bounds(stroke->points)),
-        .color = stroke->color,
-        .width = stroke->width,
-    }) });
+    dispatch(reduce(sketch(),
+        action::ReplaceLastStroke{ std::make_shared<const Stroke>(Stroke{
+            .points = idealShape(match->name, bounds(stroke->points)),
+            .color = stroke->color,
+            .width = stroke->width,
+        }) }));
     Q_EMIT shapeSnapped(std::ranges::find(Shapes, match->name, &NamedShape::name)->shape);
 }
 
 void CanvasStore::clear()
 {
-    dispatch(action::Clear{});
+    dispatch(reduce(sketch(), action::Clear{}));
 }
 
 void CanvasStore::setPageSize(int width, int height)
@@ -196,24 +243,24 @@ void CanvasStore::setPageSize(int width, int height)
     auto page = sketch().page;
     page.width = width;
     page.height = height;
-    dispatch(action::SetPage{ page });
+    dispatch(reduce(sketch(), action::SetPage{ page }));
 }
 
-void CanvasStore::setPaperBackground(PaperBackground background)
+void CanvasStore::setBackground(Background background)
 {
-    if (background < PaperBackground::Plain || background > PaperBackground::Ruled)
+    if (background < Background::Plain || background > Background::Ruled)
         return;
     auto page = sketch().page;
     page.background = background;
-    dispatch(action::SetPage{ page });
+    dispatch(reduce(sketch(), action::SetPage{ page }));
 }
 
-void CanvasStore::setPaperPattern(int spacing, int thickness)
+void CanvasStore::setPattern(int spacing, int thickness)
 {
     auto page = sketch().page;
     page.spacing = std::clamp(spacing, 8, 128);
     page.thickness = std::clamp(thickness, 1, 8);
-    dispatch(action::SetPage{ page });
+    dispatch(reduce(sketch(), action::SetPage{ page }));
 }
 
 void CanvasStore::undo()
@@ -234,9 +281,8 @@ void CanvasStore::redo()
     }
 }
 
-void CanvasStore::dispatch(const Action &action)
+void CanvasStore::dispatch(Sketch next)
 {
-    auto next = reduce(sketch(), action);
     if (next == sketch())
         return;
     // A new edit makes the undone steps unreachable.

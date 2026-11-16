@@ -16,9 +16,9 @@
 #include <optional>
 
 template <>
-struct glz::meta<app::canvas::PaperBackground>
+struct glz::meta<app::canvas::Background>
 {
-    using enum app::canvas::PaperBackground;
+    using enum app::canvas::Background;
     static constexpr auto value = enumerate("plain", Plain, "dots", Dots, "ruled", Ruled);
 };
 

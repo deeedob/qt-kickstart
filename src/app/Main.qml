@@ -63,11 +63,58 @@ ApplicationWindow {
             }
 
             // demo:begin
-            SketchTitle {
+            Item {
+                id: sketchTitle
+
                 Layout.fillWidth: true
+                implicitWidth: 180
+                implicitHeight: Theme.controlHeight
                 visible: stack.depth > 1
-                name: window.sketchbook.openName
-                onRenameRequested: name => window.sketchbook.renameOpen(name)
+
+                property bool editing: false
+
+                function focusEditor(): void {
+                    if (sketchTitle.editing) {
+                        sketchNameField.forceActiveFocus()
+                        sketchNameField.selectAll()
+                    }
+                }
+
+                Label {
+                    anchors.fill: parent
+                    visible: !sketchTitle.editing
+                    text: window.sketchbook.openName
+                    font.pixelSize: 16
+                    font.weight: Font.DemiBold
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onDoubleClicked: {
+                            sketchTitle.editing = true
+                            sketchNameField.text = window.sketchbook.openName
+                            Qt.callLater(sketchTitle.focusEditor)
+                        }
+                    }
+                }
+
+                TextField {
+                    id: sketchNameField
+
+                    anchors.fill: parent
+                    visible: sketchTitle.editing
+                    placeholderText: qsTr("Sketch name")
+                    onEditingFinished: {
+                        if (sketchTitle.editing)
+                            window.sketchbook.renameOpen(text)
+                        sketchTitle.editing = false
+                    }
+                    Keys.onEscapePressed: {
+                        sketchTitle.editing = false
+                        sketchNameField.focus = false
+                    }
+                }
             }
             // demo:end
 

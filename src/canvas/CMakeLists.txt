@@ -6,10 +6,9 @@ qt_add_qml_module(app_canvas
     QML_FILES
         CanvasPage.qml
         CanvasSettings.qml
-        SketchTitle.qml
     SOURCES
         CanvasStore.cpp CanvasStore.hpp
-        Sketch.hpp
+        CanvasTypes.hpp
         StrokeItem.cpp StrokeItem.hpp
 )
 target_include_directories(app_canvas

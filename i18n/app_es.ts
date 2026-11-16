@@ -179,12 +179,12 @@
         <translation>Alto</translation>
     </message>
     <message>
-        <location filename="../src/canvas/CanvasSettings.qml" line="112"/>
+        <location filename="../src/canvas/CanvasSettings.qml" line="113"/>
         <source>Spacing</source>
         <translation>Espaciado</translation>
     </message>
     <message>
-        <location filename="../src/canvas/CanvasSettings.qml" line="130"/>
+        <location filename="../src/canvas/CanvasSettings.qml" line="131"/>
         <source>Thickness</source>
         <translation>Grosor</translation>
     </message>
@@ -249,8 +249,13 @@
         <source>Back</source>
         <translation>Volver</translation>
     </message>
+    <message>
+        <location filename="../src/app/Main.qml" line="107"/>
+        <source>Sketch name</source>
+        <translation>Nombre del dibujo</translation>
+    </message>
     <message numerus="yes">
-        <location filename="../src/app/Main.qml" line="77"/>
+        <location filename="../src/app/Main.qml" line="124"/>
         <source>%n stroke(s)</source>
         <translation>
             <numerusform>%n trazo</numerusform>
@@ -258,7 +263,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/app/Main.qml" line="77"/>
+        <location filename="../src/app/Main.qml" line="124"/>
         <source>%n point(s)</source>
         <translation>
             <numerusform>%n punto</numerusform>
@@ -266,17 +271,17 @@
         </translation>
     </message>
     <message>
-        <location filename="../src/app/Main.qml" line="85"/>
+        <location filename="../src/app/Main.qml" line="132"/>
         <source>Switch to light theme</source>
         <translation>Cambiar al tema claro</translation>
     </message>
     <message>
-        <location filename="../src/app/Main.qml" line="85"/>
+        <location filename="../src/app/Main.qml" line="132"/>
         <source>Switch to dark theme</source>
         <translation>Cambiar al tema oscuro</translation>
     </message>
     <message>
-        <location filename="../src/app/Main.qml" line="97"/>
+        <location filename="../src/app/Main.qml" line="144"/>
         <source>About</source>
         <translation>Acerca de</translation>
     </message>
@@ -338,14 +343,6 @@
         <location filename="../src/notify/NotificationHost.qml" line="95"/>
         <source>Dismiss passive notifications</source>
         <translation>Cerrar notificaciones pasivas</translation>
-    </message>
-</context>
-<context>
-    <name>SketchTitle</name>
-    <message>
-        <location filename="../src/canvas/SketchTitle.qml" line="49"/>
-        <source>Sketch name</source>
-        <translation>Nombre del dibujo</translation>
     </message>
 </context>
 <context>

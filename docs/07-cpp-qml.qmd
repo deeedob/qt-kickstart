@@ -65,25 +65,25 @@ Register enums with `Q_ENUM` on a QML type. In QML, enum values are numbers, so 
 parameters as `int`. For user-visible collections, expose a `QAbstractListModel` rather
 than a JavaScript array with copied state.
 
-Sketchbook also exposes the canvas paper background through a registered namespace: `Q_NAMESPACE`
-and `Q_ENUM_NS` provide Qt metadata, and QML refers to a value such as `Paper.Dots`. A model's
+Sketchbook also exposes canvas enums through a registered namespace: `Q_NAMESPACE` and
+`Q_ENUM_NS` provide Qt metadata, and QML refers to a value such as `Canvas.Background.Dots`. A model's
 `roleNames()` gives each piece of row data a name; a delegate declares those roles as required
 properties. Precise change signals tell the view which rows to update.
 
-This adapted declaration isolates the enum from the other canvas value types in
-[Sketch.hpp](https://github.com/deeedob/qt-kickstart/blob/main/src/canvas/Sketch.hpp):
+This adapted declaration exposes canvas values in
+[CanvasTypes.hpp](https://github.com/deeedob/qt-kickstart/blob/main/src/canvas/CanvasTypes.hpp):
 
 ```cpp
 namespace app::canvas {
 Q_NAMESPACE
-QML_NAMED_ELEMENT(Paper)
+QML_NAMED_ELEMENT(Canvas)
 
-enum class PaperBackground { Plain, Dots, Ruled };
-Q_ENUM_NS(PaperBackground)
+enum class Background { Plain, Dots, Ruled };
+Q_ENUM_NS(Background)
 }
 ```
 
-The canvas settings view can then use `Paper.Dots` when calling the store, instead of relying
+The canvas settings view can then use `Canvas.Background.Dots` when calling the store, instead of relying
 on a number whose meaning is unclear. The header belongs to the canvas QML module so the build
 can generate its type information.
 

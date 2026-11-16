@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Sketch.hpp"
+#include "CanvasTypes.hpp"
 
 #include <QtCore/QList>
 #include <QtCore/QObject>
@@ -26,16 +26,12 @@ class CanvasStore : public QObject
     Q_PROPERTY(int pointCount READ pointCount NOTIFY changed FINAL)
     Q_PROPERTY(int pageWidth READ pageWidth NOTIFY changed FINAL)
     Q_PROPERTY(int pageHeight READ pageHeight NOTIFY changed FINAL)
-    Q_PROPERTY(
-        app::canvas::PaperBackground paperBackground READ paperBackground NOTIFY changed FINAL)
-    Q_PROPERTY(int paperSpacing READ paperSpacing NOTIFY changed FINAL)
-    Q_PROPERTY(int paperThickness READ paperThickness NOTIFY changed FINAL)
+    Q_PROPERTY(app::canvas::Background background READ background NOTIFY changed FINAL)
+    Q_PROPERTY(int spacing READ spacing NOTIFY changed FINAL)
+    Q_PROPERTY(int thickness READ thickness NOTIFY changed FINAL)
     Q_PROPERTY(bool snapShapes READ snapShapes WRITE setSnapShapes NOTIFY snapShapesChanged FINAL)
 
 public:
-    enum class Shape : quint8 { Circle, Rectangle, Triangle };
-    Q_ENUM(Shape)
-
     explicit CanvasStore(QObject *parent = nullptr);
 
     [[nodiscard]] const Sketch &sketch() const;
@@ -49,9 +45,9 @@ public:
     [[nodiscard]] int pointCount() const;
     [[nodiscard]] int pageWidth() const;
     [[nodiscard]] int pageHeight() const;
-    [[nodiscard]] PaperBackground paperBackground() const;
-    [[nodiscard]] int paperSpacing() const;
-    [[nodiscard]] int paperThickness() const;
+    [[nodiscard]] Background background() const;
+    [[nodiscard]] int spacing() const;
+    [[nodiscard]] int thickness() const;
     [[nodiscard]] bool snapShapes() const;
     void setSnapShapes(bool snap);
 
@@ -60,8 +56,8 @@ public:
         double width = 4.0);
     Q_INVOKABLE void clear();
     Q_INVOKABLE void setPageSize(int width, int height);
-    Q_INVOKABLE void setPaperBackground(PaperBackground background);
-    Q_INVOKABLE void setPaperPattern(int spacing, int thickness);
+    Q_INVOKABLE void setBackground(Background background);
+    Q_INVOKABLE void setPattern(int spacing, int thickness);
     Q_INVOKABLE void undo();
     Q_INVOKABLE void redo();
 
@@ -70,11 +66,11 @@ Q_SIGNALS:
     // User edits only, including undo and redo: what needs saving.
     void edited();
     void snapShapesChanged();
-    void shapeSnapped(app::canvas::CanvasStore::Shape shape);
+    void shapeSnapped(app::canvas::Shape shape);
     void historyMoved(bool redo);
 
 private:
-    void dispatch(const Action &action);
+    void dispatch(Sketch next);
     void moveTo(std::size_t index);
 
     std::vector<Sketch> m_history{ Sketch{} };

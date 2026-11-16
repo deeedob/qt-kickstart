@@ -7,7 +7,7 @@
 #include <QtTest/QTest>
 
 using namespace Qt::StringLiterals;
-using app::canvas::PaperBackground;
+using app::canvas::Background;
 using app::canvas::Stroke;
 using app::sketchbook::SketchDocument;
 using app::sketchbook::SketchStorage;
@@ -23,7 +23,7 @@ SketchDocument twoStrokes()
                 .points = { { .x = 1, .y = 2 }, { .x = 3.5, .y = 4 } }, .color = "#ff0000" }),
             std::make_shared<const Stroke>(Stroke{ .points = { { .x = 0, .y = 0 } }, .color = "#000000" }),
         },
-        .page = { .width = 1200, .height = 1600, .background = PaperBackground::Dots,
+        .page = { .width = 1200, .height = 1600, .background = Background::Dots,
             .spacing = 24, .thickness = 3 },
     };
 }
@@ -57,7 +57,7 @@ private Q_SLOTS:
         QCOMPARE(document.strokes.front()->width, 4.0);
         QCOMPARE(document.page.width, 1200);
         QCOMPARE(document.page.height, 1600);
-        QCOMPARE(document.page.background, PaperBackground::Dots);
+        QCOMPARE(document.page.background, Background::Dots);
         QCOMPARE(document.page.spacing, 24);
         QCOMPARE(document.page.thickness, 3);
         QFile savedFile(QDir(dir.path()).filePath("a.json"_L1));
@@ -73,9 +73,9 @@ private Q_SLOTS:
         QSignalSpy loaded(&storage, &SketchStorage::loaded);
         quint64 requestId = 0;
         for (const auto &[background, name] : {
-                 std::pair{ PaperBackground::Plain, "plain" },
-                 std::pair{ PaperBackground::Dots,  "dots"  },
-                 std::pair{ PaperBackground::Ruled, "ruled" }
+                 std::pair{ Background::Plain, "plain" },
+                 std::pair{ Background::Dots,  "dots"  },
+                 std::pair{ Background::Ruled, "ruled" }
         }) {
             auto document = twoStrokes();
             document.page.background = background;

@@ -123,7 +123,7 @@ flowchart LR
     S -. changed .-> V
 ```
 
-Sketchbook represents actions with `std::variant`. Its reducer receives a sketch value and an
+Canvas represents actions with `std::variant`. Its reducer receives a sketch value and an
 action, then returns the next sketch. The store keeps snapshots and moves an index through them
 for undo and redo. A new edit after undo discards the redo branch; immutable strokes let the
 snapshots share the point data instead of copying every stroke. The history has a size limit.
@@ -131,11 +131,11 @@ snapshots share the point data instead of copying every stroke. The history has 
 The reducer handles the different action types in one place. It receives a sketch by value,
 applies the action to that copy, and returns the result:
 
-::: {.snippet source="src/canvas/Sketch.hpp"}
+::: {.snippet source="src/canvas/CanvasStore.cpp"}
 
 ```cpp
-[[nodiscard]] inline Sketch reduce(Sketch sketch, const Action &action)
-    return sketch;\n}
+[[nodiscard]] Sketch reduce(Sketch sketch, const Action &action)
+        return sketch;\n    }
 ```
 
 :::
@@ -150,7 +150,7 @@ after the current position, so redo no longer leads to a discarded branch:
 ::: {.snippet source="src/canvas/CanvasStore.cpp"}
 
 ```cpp
-void CanvasStore::dispatch(const Action &action)
+void CanvasStore::dispatch(Sketch next)
     moveTo(m_history.size() - 1);\n}
 ```
 

@@ -31,11 +31,14 @@ TestCase {
     finishedSpy.clear();
 }
 
-    function test_paperBackgroundEnums(): void {
-                                              compare(Paper.Plain, 0);
-                                              compare(Paper.Dots, 1);
-                                              compare(Paper.Ruled, 2);
-                                          }
+    function test_canvasEnums(): void {
+        compare(Canvas.Background.Plain, 0)
+        compare(Canvas.Background.Dots, 1)
+        compare(Canvas.Background.Ruled, 2)
+        compare(Canvas.Shape.Circle, 0)
+        compare(Canvas.Shape.Rectangle, 1)
+        compare(Canvas.Shape.Triangle, 2)
+    }
 
     function test_dragReportsTheDrawnPoints(): void {
     const item = createTemporaryObject(itemComponent, testCase);

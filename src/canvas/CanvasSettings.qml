@@ -4,6 +4,7 @@ pragma Translator: CanvasPage
 import QtQuick
 import QtQuick.Layouts
 import App.Controls
+import App.Canvas
 
 ToolButton {
     id: root
@@ -101,45 +102,46 @@ ToolButton {
                     Layout.fillWidth: true
                     Layout.columnSpan: 3
                     model: [qsTr("Plain"), qsTr("Dots"), qsTr("Ruled")]
-                    currentIndex: [Paper.Plain, Paper.Dots, Paper.Ruled].indexOf(
-                        root.store.paperBackground)
-                    onActivated: index => root.store.setPaperBackground([Paper.Plain, Paper.Dots,
-                                                                         Paper.Ruled][index])
+                    currentIndex: [Canvas.Background.Plain, Canvas.Background.Dots,
+                                   Canvas.Background.Ruled].indexOf(root.store.background)
+                    onActivated: index => root.store.setBackground([Canvas.Background.Plain,
+                                                                     Canvas.Background.Dots,
+                                                                     Canvas.Background.Ruled][index])
                 }
 
                 Label {
-                    visible: root.store.paperBackground !== Paper.Plain
+                    visible: root.store.background !== Canvas.Background.Plain
                     text: qsTr("Spacing")
                 }
                 SpinBox {
-                    visible: root.store.paperBackground !== Paper.Plain
+                    visible: root.store.background !== Canvas.Background.Plain
                     Layout.fillWidth: true
                     from: 8
                     to: 128
                     editable: true
-                    value: root.store.paperSpacing
-                    onValueModified: root.store.setPaperPattern(value, root.store.paperThickness)
+                    value: root.store.spacing
+                    onValueModified: root.store.setPattern(value, root.store.thickness)
                 }
                 Item {
-                    visible: root.store.paperBackground !== Paper.Plain
+                    visible: root.store.background !== Canvas.Background.Plain
                     Layout.preferredWidth: Theme.controlHeight
                 }
 
                 Label {
-                    visible: root.store.paperBackground !== Paper.Plain
+                    visible: root.store.background !== Canvas.Background.Plain
                     text: qsTr("Thickness")
                 }
                 SpinBox {
-                    visible: root.store.paperBackground !== Paper.Plain
+                    visible: root.store.background !== Canvas.Background.Plain
                     Layout.fillWidth: true
                     from: 1
                     to: 8
                     editable: true
-                    value: root.store.paperThickness
-                    onValueModified: root.store.setPaperPattern(root.store.paperSpacing, value)
+                    value: root.store.thickness
+                    onValueModified: root.store.setPattern(root.store.spacing, value)
                 }
                 Item {
-                    visible: root.store.paperBackground !== Paper.Plain
+                    visible: root.store.background !== Canvas.Background.Plain
                     Layout.preferredWidth: Theme.controlHeight
                 }
             }

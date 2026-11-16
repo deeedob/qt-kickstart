@@ -10,8 +10,9 @@
 #include <numbers>
 
 using namespace Qt::StringLiterals;
+using app::canvas::Background;
 using app::canvas::CanvasStore;
-using app::canvas::PaperBackground;
+using app::canvas::Shape;
 using app::canvas::Stroke;
 
 namespace {
@@ -148,7 +149,7 @@ private Q_SLOTS:
         store.addStroke(zigzag(), Qt::black);
 
         QCOMPARE(snapped.count(), 1);
-        QCOMPARE(snapped.front().front().value<CanvasStore::Shape>(), CanvasStore::Shape::Circle);
+        QCOMPARE(snapped.front().front().value<Shape>(), Shape::Circle);
     }
 
     void unrecognizedStrokesStayAsDrawn()
@@ -209,17 +210,17 @@ private Q_SLOTS:
         QCOMPARE(store.pointCount(), 5);
     }
 
-    void paperPatternChangesAreUndoable()
+    void patternChangesAreUndoable()
     {
         CanvasStore store;
-        store.setPaperPattern(24, 3);
-        QCOMPARE(store.paperSpacing(), 24);
-        QCOMPARE(store.paperThickness(), 3);
+        store.setPattern(24, 3);
+        QCOMPARE(store.spacing(), 24);
+        QCOMPARE(store.thickness(), 3);
         store.undo();
-        QCOMPARE(store.paperSpacing(), 32);
-        QCOMPARE(store.paperThickness(), 1);
+        QCOMPARE(store.spacing(), 32);
+        QCOMPARE(store.thickness(), 1);
         store.redo();
-        QCOMPARE(store.paperSpacing(), 24);
+        QCOMPARE(store.spacing(), 24);
     }
 
     void pageChangesAreUndoable()
@@ -227,13 +228,13 @@ private Q_SLOTS:
         CanvasStore store;
 
         store.setPageSize(1200, 1600);
-        store.setPaperBackground(PaperBackground::Dots);
+        store.setBackground(Background::Dots);
 
         QCOMPARE(store.sketch().page.width, 1200);
         QCOMPARE(store.sketch().page.height, 1600);
-        QCOMPARE(store.sketch().page.background, PaperBackground::Dots);
+        QCOMPARE(store.sketch().page.background, Background::Dots);
         store.undo();
-        QCOMPARE(store.sketch().page.background, PaperBackground::Plain);
+        QCOMPARE(store.sketch().page.background, Background::Plain);
         store.undo();
         QCOMPARE(store.sketch().page.width, 1600);
         QCOMPARE(store.sketch().page.height, 1200);
@@ -252,10 +253,10 @@ private Q_SLOTS:
         QVERIFY(store.sketch().strokes.front()->points == points);
     }
 
-    void paperBackgroundIsAnEnumProperty()
+    void backgroundIsAnEnumProperty()
     {
         const auto &meta = app::canvas::CanvasStore::staticMetaObject;
-        const auto property = meta.property(meta.indexOfProperty("paperBackground"));
+        const auto property = meta.property(meta.indexOfProperty("background"));
         QVERIFY(property.isEnumType());
     }
 

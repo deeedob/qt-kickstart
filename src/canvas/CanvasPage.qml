@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import App.Controls
+import App.Canvas
 
 // A Flux view: it shows the store's state and turns input into actions, never editing the sketch.
 Page {
@@ -189,10 +190,10 @@ Page {
                 id: dots
 
                 anchors.fill: parent
-                visible: root.store.paperBackground === 1
+                visible: root.store.background === Canvas.Background.Dots
 
-                readonly property int columns: Math.ceil(paper.width / root.store.paperSpacing)
-                readonly property int rows: Math.ceil(paper.height / root.store.paperSpacing)
+                readonly property int columns: Math.ceil(paper.width / root.store.spacing)
+                readonly property int rows: Math.ceil(paper.height / root.store.spacing)
 
                 Repeater {
                     model: dots.visible ? dots.columns * dots.rows : 0
@@ -200,10 +201,10 @@ Page {
                     delegate: Rectangle {
                         required property int index
 
-                        x: (index % dots.columns) * root.store.paperSpacing
-                        y: Math.floor(index / dots.columns) * root.store.paperSpacing
-                        width: root.store.paperThickness
-                        height: root.store.paperThickness
+                        x: (index % dots.columns) * root.store.spacing
+                        y: Math.floor(index / dots.columns) * root.store.spacing
+                        width: root.store.thickness
+                        height: root.store.thickness
                         radius: width / 2
                         color: "#d5d5dc"
                     }
@@ -212,20 +213,20 @@ Page {
 
             Item {
                 anchors.fill: parent
-                visible: root.store.paperBackground === 2
+                visible: root.store.background === Canvas.Background.Ruled
 
                 Repeater {
-                    model: root.store.paperBackground === 2 ? Math.ceil(paper.height
-                                                                        / root.store.paperSpacing) :
+                    model: root.store.background === Canvas.Background.Ruled ? Math.ceil(paper.height
+                                                                                         / root.store.spacing) :
                                                               0
 
                     delegate: Rectangle {
                         required property int index
 
                         x: 0
-                        y: index * root.store.paperSpacing
+                        y: index * root.store.spacing
                         width: paper.width
-                        height: root.store.paperThickness
+                        height: root.store.thickness
                         color: "#d5d5dc"
                     }
                 }
@@ -349,13 +350,13 @@ Page {
 
         function onShapeSnapped(shape: int): void {
             switch (shape) {
-            case CanvasStore.Shape.Circle:
+            case Canvas.Shape.Circle:
                 snapHint.text = qsTr("Snapped to a circle");
                 break;
-            case CanvasStore.Shape.Rectangle:
+            case Canvas.Shape.Rectangle:
                 snapHint.text = qsTr("Snapped to a rectangle");
                 break;
-            case CanvasStore.Shape.Triangle:
+            case Canvas.Shape.Triangle:
                 snapHint.text = qsTr("Snapped to a triangle");
                 break;
             }

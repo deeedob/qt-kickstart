@@ -66,7 +66,6 @@ class TemplateSetupTest(unittest.TestCase):
     def test_demo_removal_removes_canvas_links_and_test(self):
         cmake = self.copy("src/app/CMakeLists.txt")
         self.copy("vcpkg.json")
-        self.copy("tests/canvas/tst_SketchTitle.qml")
         self.copy("tests/manual/showcase/showcase.cpp")
         setup.remove_demo()
         self.assertNotIn("app_canvas", cmake.read_text())
