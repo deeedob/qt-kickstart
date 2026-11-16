@@ -147,15 +147,23 @@ private Q_SLOTS:
         QQmlEngine engine;
         engine.setExternalSingletonInstance("App"_L1, "AppController"_L1, &controller);
         QQmlComponent component(&engine);
-        component.setData(
-            "import QtQml; import App; QtObject { "
-            "property string sha: AppController.buildDetails.gitSha; "
-            "property runtimeInfo info: AppController.runtimeInfo; "
-            "property string osName: info.operatingSystem; "
-            "property string kernel: info.kernelVersion; "
-            "property string architecture: info.processArchitecture; "
-            "property string windowSystem: info.windowSystem; "
-            "property bool shared: AppController.buildDetails.sharedQt }",
+        component.setData(R"(
+            pragma ComponentBehavior: Bound
+
+            import QtQml
+
+            import App
+
+            QtObject {
+                property string sha: AppController.buildDetails.gitSha
+                property runtimeInfo info: AppController.runtimeInfo
+                property string osName: info.operatingSystem
+                property string kernel: info.kernelVersion
+                property string architecture: info.processArchitecture
+                property string windowSystem: info.windowSystem
+                property bool shared: AppController.buildDetails.sharedQt
+            }
+        )",
             QUrl());
         const std::unique_ptr<QObject> object(component.create());
         QVERIFY2(object, qPrintable(component.errorString()));

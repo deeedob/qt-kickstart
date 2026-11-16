@@ -2,10 +2,11 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
-import App.Controls
+
 import App.Canvas // demo
-import App.Sketchbook // demo
+import App.Controls
 import App.Notify
+import App.Sketchbook // demo
 
 ApplicationWindow {
     id: window
@@ -75,8 +76,8 @@ ApplicationWindow {
 
                 function focusEditor(): void {
                     if (sketchTitle.editing) {
-                        sketchNameField.forceActiveFocus()
-                        sketchNameField.selectAll()
+                        sketchNameField.forceActiveFocus();
+                        sketchNameField.selectAll();
                     }
                 }
 
@@ -92,9 +93,9 @@ ApplicationWindow {
                     MouseArea {
                         anchors.fill: parent
                         onDoubleClicked: {
-                            sketchTitle.editing = true
-                            sketchNameField.text = window.sketchbook.openName
-                            Qt.callLater(sketchTitle.focusEditor)
+                            sketchTitle.editing = true;
+                            sketchNameField.text = window.sketchbook.openName;
+                            Qt.callLater(sketchTitle.focusEditor);
                         }
                     }
                 }
@@ -107,12 +108,12 @@ ApplicationWindow {
                     placeholderText: qsTr("Sketch name")
                     onEditingFinished: {
                         if (sketchTitle.editing)
-                            window.sketchbook.renameOpen(text)
-                        sketchTitle.editing = false
+                            window.sketchbook.renameOpen(text);
+                        sketchTitle.editing = false;
                     }
                     Keys.onEscapePressed: {
-                        sketchTitle.editing = false
-                        sketchNameField.focus = false
+                        sketchTitle.editing = false;
+                        sketchNameField.focus = false;
                     }
                 }
             }
@@ -191,8 +192,8 @@ ApplicationWindow {
         target: window.sketchbook
 
         function onCloseReady(): void {
-        window.close();
+            window.close();
+        }
     }
-    }
-        // demo:end
-    }
+    // demo:end
+}

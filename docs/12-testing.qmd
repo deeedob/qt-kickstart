@@ -50,7 +50,7 @@ the offscreen platform lets CI run it without a physical display.
 
 ```qml
     function test_dragReportsTheDrawnPoints(): void {
-    compare(points[2], Qt.point(90, 80));\n}
+        compare(points[2], Qt.point(90, 80));\n    }
 ```
 
 :::
@@ -96,7 +96,7 @@ a window without requiring a physical display in CI.
 
 ```qml
     function test_dragReportsTheDrawnPoints(): void {
-    compare(points[2], Qt.point(90, 80));\n}
+        compare(points[2], Qt.point(90, 80));\n    }
 ```
 
 :::

@@ -3,8 +3,9 @@ pragma Translator: CanvasPage
 
 import QtQuick
 import QtQuick.Layouts
-import App.Controls
+
 import App.Canvas
+import App.Controls
 
 ToolButton {
     id: root
@@ -103,10 +104,10 @@ ToolButton {
                     Layout.columnSpan: 3
                     model: [qsTr("Plain"), qsTr("Dots"), qsTr("Ruled")]
                     currentIndex: [Canvas.Background.Plain, Canvas.Background.Dots,
-                                   Canvas.Background.Ruled].indexOf(root.store.background)
+                        Canvas.Background.Ruled].indexOf(root.store.background)
                     onActivated: index => root.store.setBackground([Canvas.Background.Plain,
-                                                                     Canvas.Background.Dots,
-                                                                     Canvas.Background.Ruled][index])
+                                                                    Canvas.Background.Dots,
+                                                                    Canvas.Background.Ruled][index])
                 }
 
                 Label {

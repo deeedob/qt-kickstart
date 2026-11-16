@@ -2,8 +2,9 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
-import App.Controls
+
 import App.Canvas
+import App.Controls
 
 // A Flux view: it shows the store's state and turns input into actions, never editing the sketch.
 Page {
@@ -216,9 +217,10 @@ Page {
                 visible: root.store.background === Canvas.Background.Ruled
 
                 Repeater {
-                    model: root.store.background === Canvas.Background.Ruled ? Math.ceil(paper.height
-                                                                                         / root.store.spacing) :
-                                                              0
+                    model: root.store.background === Canvas.Background.Ruled ? Math.ceil(
+                                                                                   paper.height
+                                                                                   / root.store.spacing) :
+                                                                               0
 
                     delegate: Rectangle {
                         required property int index

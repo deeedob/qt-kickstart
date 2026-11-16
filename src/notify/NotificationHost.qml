@@ -116,17 +116,17 @@ Item {
         target: root.manager
 
         function onRowsInserted(): void {
-        Qt.callLater(cardList.positionViewAtBeginning);
-    }
+            Qt.callLater(cardList.positionViewAtBeginning);
+        }
 
         function onCurrentDecisionChanged(): void {
-                                                 if (root.manager.currentDecision) {
-                                                     decisionCloseTimer.stop();
-                                                     if (!decisionDialog.visible)
-                                                     decisionDialog.open();
-                                                     return;
-                                                 }
-                                                 decisionCloseTimer.restart();
-                                             }
+            if (root.manager.currentDecision) {
+                decisionCloseTimer.stop();
+                if (!decisionDialog.visible)
+                    decisionDialog.open();
+                return;
+            }
+            decisionCloseTimer.restart();
+        }
     }
 }

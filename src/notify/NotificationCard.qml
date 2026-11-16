@@ -1,10 +1,11 @@
 pragma ComponentBehavior: Bound
 
+import QtQuick
+import QtQuick.Effects
+import QtQuick.Layouts
+
 import App.Controls
 import App.Notify
-import QtQuick
-import QtQuick.Layouts
-import QtQuick.Effects
 
 FocusScope {
     id: root
@@ -24,10 +25,10 @@ FocusScope {
     height: implicitHeight
 
     function updatePresentation(): void {
-    if (root.notification)
-    root.notification.setPresentationState(root.presented, hoverHandler.hovered
-    || root.activeFocus);
-}
+        if (root.notification)
+            root.notification.setPresentationState(root.presented, hoverHandler.hovered
+                                                   || root.activeFocus);
+    }
 
     Component.onCompleted: root.updatePresentation()
     Component.onDestruction: {

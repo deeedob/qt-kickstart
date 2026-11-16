@@ -37,8 +37,12 @@ private Q_SLOTS:
         QQmlEngine engine;
         QQmlComponent component(&engine);
         component.setData(R"(
+            pragma ComponentBehavior: Bound
+
             import QtQuick
+
             import App.Notify
+
             QtObject {
                 property int severity: Notify.Severity.Error
                 property int presentation: Notify.Presentation.Decision
@@ -62,8 +66,11 @@ private Q_SLOTS:
         QQmlComponent component(&engine);
         const QString source = uR"(
             pragma ComponentBehavior: Bound
+
             import QtQuick
+
             import App.Notify
+
             QtObject {
                 id: root
                 required property NotificationManager manager
@@ -127,8 +134,12 @@ private Q_SLOTS:
         QQmlEngine engine;
         QQmlComponent component(&engine);
         component.setData(R"(
+            pragma ComponentBehavior: Bound
+
             import QtQuick
+
             import App.Notify
+
             QtObject {
                 id: root
                 required property NotificationManager manager
@@ -174,8 +185,12 @@ private Q_SLOTS:
         QQmlEngine engine;
         QQmlComponent component(&engine);
         component.setData(R"(
+            pragma ComponentBehavior: Bound
+
             import QtQuick
+
             import App.Notify
+
             QtObject {
                 id: root
                 required property NotificationManager manager
@@ -204,8 +219,12 @@ private Q_SLOTS:
         QQmlEngine engine;
         QQmlComponent component(&engine);
         component.setData(R"(
+            pragma ComponentBehavior: Bound
+
             import QtQuick
+
             import App.Notify
+
             QtObject {
                 id: root
                 required property NotificationManager manager
@@ -250,8 +269,12 @@ private Q_SLOTS:
         QFETCH(QString, body);
         QFETCH(QByteArray, warning);
         const auto source = uR"(
+            pragma ComponentBehavior: Bound
+
             import QtQuick
+
             import App.Notify
+
             QtObject {
                 id: root
                 required property NotificationManager manager
@@ -278,8 +301,12 @@ private Q_SLOTS:
         QQmlEngine engine;
         QQmlComponent component(&engine);
         component.setData(R"(
+            pragma ComponentBehavior: Bound
+
             import QtQuick
+
             import App.Notify
+
             QtObject {
                 id: root
                 required property NotificationManager manager
@@ -310,8 +337,12 @@ private Q_SLOTS:
         QQmlEngine engine;
         QQmlComponent component(&engine);
         component.setData(R"(
+            pragma ComponentBehavior: Bound
+
             import QtQuick
+
             import App.Notify
+
             QtObject {
                 id: root
                 required property NotificationManager manager
@@ -644,8 +675,12 @@ private Q_SLOTS:
         window.resize(640, 480);
         QQmlComponent component(&engine);
         component.setData(R"(
+            pragma ComponentBehavior: Bound
+
             import QtQuick
+
             import App.Notify
+
             NotificationHost {
                 id: testHost
                 required property NotificationManager testManager
@@ -709,8 +744,12 @@ private Q_SLOTS:
         QQmlEngine engine;
         QQmlComponent component(&engine);
         component.setData(R"(
+            pragma ComponentBehavior: Bound
+
             import QtQuick
+
             import App.Notify
+
             NotificationDialog {
                 required property Notification message
                 notification: message
@@ -814,9 +853,12 @@ private:
     {
         QQmlComponent component(&engine);
         component.setData(R"(
+            pragma ComponentBehavior: Bound
+
             import QtQuick
-            import App.Notify
+
             import App.Controls
+            import App.Notify
 
             Item {
                 required property NotificationManager manager
