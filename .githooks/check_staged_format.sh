@@ -27,9 +27,35 @@ if $needs_clang_format && ! command -v clang-format >/dev/null; then
     printf 'Install clang-format before committing C++ changes.\n' >&2
     exit 1
 fi
-if $needs_qmlformat && ! command -v qmlformat >/dev/null; then
-    printf "Install Qt's qmlformat before committing QML changes.\n" >&2
-    exit 1
+if $needs_qmlformat; then
+    find_qmlformat() {
+        local directory=$1
+        while [[ "$directory" != / ]]; do
+            local candidate
+            for candidate in "$directory/bin/qmlformat" "$directory/tools/Qt6/bin/qmlformat"; do
+                if [[ -x "$candidate" ]]; then
+                    printf '%s\n' "$candidate"
+                    return 0
+                fi
+            done
+            directory=$(dirname "$directory")
+        done
+        return 1
+    }
+
+    qmlformat_path="${Qt6_ROOT:+$(find_qmlformat "$Qt6_ROOT" || true)}"
+    for cache in "$root"/build/*/CMakeCache.txt; do
+        [[ -n "$qmlformat_path" || ! -f "$cache" ]] && continue
+        qt6_dir=$(sed -n 's/^Qt6_DIR:PATH=//p' "$cache")
+        qmlformat_path="${qt6_dir:+$(find_qmlformat "$qt6_dir" || true)}"
+    done
+    if [[ -z "$qmlformat_path" ]]; then
+        qmlformat_path=$(command -v qmlformat || true)
+    fi
+    if [[ -z "$qmlformat_path" ]]; then
+        printf "Install Qt's qmlformat before committing QML changes.\n" >&2
+        exit 1
+    fi
 fi
 
 index=0
@@ -44,7 +70,7 @@ for path in "${paths[@]+${paths[@]}}"; do
             snapshot="$temporary_dir/$index.qml"
             formatted="$temporary_dir/$index.formatted.qml"
             git show ":$path" > "$snapshot"
-            qmlformat --settings "$root/.qmlformat.ini" "$snapshot" > "$formatted"
+            "$qmlformat_path" --settings "$root/.qmlformat.ini" "$snapshot" > "$formatted"
             if ! cmp -s "$snapshot" "$formatted"; then
                 printf 'Format staged QML before committing: %s\n' "$path" >&2
                 exit 1
